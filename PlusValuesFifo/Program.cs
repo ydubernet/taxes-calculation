@@ -7,6 +7,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PlusValuesFifo.Data;
+using PlusValuesFifo.Services;
 
 namespace PlusValuesFifo
 {
@@ -14,7 +16,15 @@ namespace PlusValuesFifo
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var csvParser = new CsvParser();
+            var dataLoader = new DataLoader(csvParser, "Transactions.csv");
+            var plusValuesService = new PlusValuesService(dataLoader);
+
+            plusValuesService.TryComputePlusValues();
+
+            Console.WriteLine("End of execution");
+
+            //CreateWebHostBuilder(args).Build().Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
