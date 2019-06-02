@@ -8,7 +8,7 @@ namespace PlusValuesFifo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class PlusValuesController : ControllerBase
     {
         // GET api/values
         [HttpGet]

@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Models;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,14 @@ namespace PlusValuesFifo.Data
     {
         private readonly IParser _parser;
         private readonly string _inputPath;
+        private readonly ILogger _logger;
         private List<Event> _events;
 
-        public DataLoader(IParser parser, string inputPath)
+        public DataLoader(IParser parser, string inputPath, ILogger logger)
         {
             _parser = parser;
             _inputPath = inputPath;
+            _logger = logger;
         }
 
 
@@ -27,11 +30,12 @@ namespace PlusValuesFifo.Data
             }
             catch (CsvHelperException ex)
             {
-                Console.WriteLine($"Exception whilst parsing Csv : {ex.Message}");
+                _logger.LogError(ex, $"Exception whilst parsing Csv...");
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Unmanaged error... :(");
                 throw;
             }
             return true;
@@ -39,17 +43,13 @@ namespace PlusValuesFifo.Data
 
         public IEnumerable<IEvent> GetBuyEvents()
         {
-            foreach (var ev in _events)
-                if (ev.ActionEvent == BuySell.Buy)
-                    yield return ev;
+            return _events.Where(e => e.ActionEvent == BuySell.Buy);
         }
 
 
         public IEnumerable<IEvent> GetSellEvents()
         {
-            foreach (var ev in _events)
-                if (ev.ActionEvent == BuySell.Sell)
-                    yield return ev;
+            return _events.Where(e => e.ActionEvent == BuySell.Sell);
         }
     }
 }
