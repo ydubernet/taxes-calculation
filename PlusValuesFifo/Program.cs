@@ -17,12 +17,13 @@ namespace PlusValuesFifo
         public static void Main(string[] args)
         {
             var csvParser = new CsvParser();
-            var dataLoader = new DataLoader(csvParser, "Transactions.csv");
+            var dataLoader = new DataLoader(csvParser, @"Transactions.csv");
             var plusValuesService = new PlusValuesService(dataLoader);
 
             plusValuesService.TryComputePlusValues();
 
             Console.WriteLine("End of execution");
+            Console.ReadKey();
 
             //CreateWebHostBuilder(args).Build().Run();
         }

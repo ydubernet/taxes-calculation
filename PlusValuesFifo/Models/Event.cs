@@ -5,19 +5,19 @@ using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Models
 {
-    public abstract class Event : IEvent
+    public class Event : IEvent
     {
-        public Event(DateTime date, decimal amount, decimal price)
-        {
-            Amount = amount;
-            Price = price;
-            Date = date;
-        }
+        public BuySell ActionEvent { get; set; }
 
-        public abstract BuySell ActionEvent { get; }
+        public decimal Amount { get; set; }
+        public decimal Price { get; set; }
+        public DateTime Date { get; set; }
+        public decimal Fee { get; set; }
 
-        public decimal Amount { get; set; } // /!\
-        public decimal Price { get; }
-        public DateTime Date { get; }
+        /// <summary>
+        /// Technical property for avoiding side calculations effects over the field Amount
+        /// Should be the only one to have a seter in the interface
+        /// </summary>
+        public decimal AmountUsed { get; set; }
     }
 }

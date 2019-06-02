@@ -1,8 +1,8 @@
-﻿using PlusValuesFifo.Models;
+﻿using CsvHelper;
+using PlusValuesFifo.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data
 {
@@ -21,23 +21,35 @@ namespace PlusValuesFifo.Data
 
         public bool TryLoadData()
         {
-            _events = _parser.Parse(_inputPath).ToList();
+            try
+            {
+                _events = _parser.Parse(_inputPath).ToList();
+            }
+            catch (CsvHelperException ex)
+            {
+                Console.WriteLine($"Exception whilst parsing Csv : {ex.Message}");
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
             return true;
         }
 
-        public IEnumerable<BuyEvent> GetBuyEvents()
+        public IEnumerable<IEvent> GetBuyEvents()
         {
             foreach (var ev in _events)
-                if (ev is BuyEvent)
-                    yield return ev as BuyEvent;
+                if (ev.ActionEvent == BuySell.Buy)
+                    yield return ev;
         }
 
 
-        public IEnumerable<SellEvent> GetSellEvents()
+        public IEnumerable<IEvent> GetSellEvents()
         {
             foreach (var ev in _events)
-                if (ev is SellEvent)
-                    yield return ev as SellEvent;
+                if (ev.ActionEvent == BuySell.Sell)
+                    yield return ev;
         }
     }
 }

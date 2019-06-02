@@ -6,7 +6,7 @@ namespace PlusValuesFifo.Data
     public interface IDataLoader
     {
         bool TryLoadData();
-        IEnumerable<BuyEvent> GetBuyEvents();
-        IEnumerable<SellEvent> GetSellEvents();
+        IEnumerable<IEvent> GetBuyEvents();
+        IEnumerable<IEvent> GetSellEvents();
     }
 }
