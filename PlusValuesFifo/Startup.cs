@@ -21,7 +21,11 @@ namespace PlusValuesFifo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddLogging();
+            services.AddLogging(loggingBuilder =>
+                loggingBuilder.AddConsole()
+                              .AddDebug()
+                              .AddEventSourceLogger()
+            );
 
             services.AddSingleton<IParser>(new CsvParser());
 
@@ -33,11 +37,13 @@ namespace PlusValuesFifo
             services.AddSingleton<IPlusValuesService>((sp) =>
                 new PlusValuesService(sp.GetService<IDataLoader>()));
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddHealthChecks();
+            services.AddMvc()
+                    .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -48,11 +54,8 @@ namespace PlusValuesFifo
                 app.UseHsts();
             }
 
-            loggerFactory.AddConsole();
-            loggerFactory.AddDebug();
-            loggerFactory.AddEventSourceLogger();
-
             app.UseHttpsRedirection();
+            app.UseHealthChecks("/monitoring/status");
             app.UseMvc();
         }
     }
