@@ -38,7 +38,7 @@ namespace PlusValuesFifo
                 new PlusValuesService(sp.GetService<IDataLoader>()));
 
             services.AddHealthChecks();
-            services.AddMvc()
+            services.AddMvc(config => config.ReturnHttpNotAcceptable = true)
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -51,12 +51,19 @@ namespace PlusValuesFifo
             }
             else
             {
+                app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseHealthChecks("/monitoring/status");
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
