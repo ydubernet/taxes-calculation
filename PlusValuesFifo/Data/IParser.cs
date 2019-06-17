@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace PlusValuesFifo.Data
 {
-    public interface IParser
+    public interface IParser<T>
     {
-        IReadOnlyCollection<Event> Parse(string inputPath);
+        IReadOnlyCollection<T> Parse(string inputPath);
     }
 }

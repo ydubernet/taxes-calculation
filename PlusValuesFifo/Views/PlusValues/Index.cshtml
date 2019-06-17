@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Plus values calculation page";
+}
+
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        <form asp-controller="PlusValue" asp-action="Post" method="post"
+              enctype="multipart/form-data">
+
+            <input type="file" name="file" />
+            <button type="submit">Upload File</button>
+        </form>
+    </div>
+ 

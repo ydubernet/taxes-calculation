@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Data;
+using PlusValuesFifo.Models;
 using PlusValuesFifo.Services;
 
 namespace PlusValuesFifo
@@ -27,15 +28,19 @@ namespace PlusValuesFifo
                               .AddEventSourceLogger()
             );
 
-            services.AddSingleton<IParser>(new CsvParser());
+            services.AddSingleton<IParser<IEvent>>(new CsvParser<IEvent>());
 
-            services.AddSingleton<IDataLoader>((sp) =>
-                new DataLoader(sp.GetService<IParser>(),
-                Configuration.GetValue<string>("InputFilePath"),
-                sp.GetService<ILogger>()));
+            services.AddSingleton<IDataLoader<IEvent>>((sp) =>
+                new DataLoader<IEvent>(sp.GetService<IParser<IEvent>>(),
+                                       Configuration.GetValue<string>("InputFilePath"),
+                                       sp.GetService<ILogger>()));
 
-            services.AddSingleton<IPlusValuesService>((sp) =>
-                new PlusValuesService(sp.GetService<IDataLoader>()));
+            services.AddSingleton<IDataExporter<IEvent>>((sp) =>
+                new DataExporter<IEvent>(sp.GetService<IFileGenerator<IEvent>>(),
+                                         Configuration.GetValue<string>("OutputFilePath"),
+                                         sp.GetService<ILogger>()));
+
+            services.AddSingleton<IPlusValuesService, PlusValuesService>();
 
             services.AddHealthChecks();
             services.AddMvc(config => config.ReturnHttpNotAcceptable = true)

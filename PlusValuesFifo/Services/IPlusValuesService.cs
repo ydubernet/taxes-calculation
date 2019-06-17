@@ -1,7 +1,10 @@
-﻿namespace PlusValuesFifo.Services
+﻿using PlusValuesFifo.Models;
+using System.Collections.Generic;
+
+namespace PlusValuesFifo.Services
 {
     public interface IPlusValuesService
     {
-        bool TryComputePlusValues();
+        bool TryComputePlusValues(out IList<OutputEvent> outputs);
     }
 }

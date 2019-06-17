@@ -7,14 +7,14 @@ using System.Linq;
 
 namespace PlusValuesFifo.Data
 {
-    public class DataLoader : IDataLoader
+    public class DataLoader<T> : IDataLoader<T> where T : IEvent
     {
-        private readonly IParser _parser;
+        private readonly IParser<T> _parser;
         private readonly string _inputPath;
         private readonly ILogger _logger;
-        private List<Event> _events;
+        private List<T> _events;
 
-        public DataLoader(IParser parser, string inputPath, ILogger logger)
+        public DataLoader(IParser<T> parser, string inputPath, ILogger logger)
         {
             _parser = parser;
             _inputPath = inputPath;
@@ -41,15 +41,9 @@ namespace PlusValuesFifo.Data
             return true;
         }
 
-        public IEnumerable<IEvent> GetBuyEvents()
+        public IEnumerable<T> GetEvents()
         {
-            return _events.Where(e => e.ActionEvent == BuySell.Buy);
-        }
-
-
-        public IEnumerable<IEvent> GetSellEvents()
-        {
-            return _events.Where(e => e.ActionEvent == BuySell.Sell);
+            return _events;
         }
     }
 }

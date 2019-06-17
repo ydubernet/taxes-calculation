@@ -3,10 +3,9 @@ using System.Collections.Generic;
 
 namespace PlusValuesFifo.Data
 {
-    public interface IDataLoader
+    public interface IDataLoader<T>
     {
         bool TryLoadData();
-        IEnumerable<IEvent> GetBuyEvents();
-        IEnumerable<IEvent> GetSellEvents();
+        IEnumerable<T> GetEvents();
     }
 }

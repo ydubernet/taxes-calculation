@@ -11,7 +11,7 @@ namespace PlusValuesFifo.Models
         decimal Fee { get; }
 
         /// <summary>
-        /// <see cref="Event.AmountUsed"/>
+        /// <see cref="InputEvent.AmountUsed"/>
         /// </summary>
         decimal AmountUsed { get; set; }
     }

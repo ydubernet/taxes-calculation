@@ -1,5 +1,5 @@
 ﻿using CsvHelper;
-using CsvHelper.Configuration;
+using PlusValuesFifo.Data.Mappers;
 using PlusValuesFifo.Models;
 using System.Collections.Generic;
 using System.IO;
@@ -7,20 +7,10 @@ using System.Linq;
 
 namespace PlusValuesFifo.Data
 {
-    public class EventMap : ClassMap<Event>
-    {
-        public EventMap()
-        {
-            AutoMap();
-            Map(m => m.Fee).Name("Fee").Default(0.0m);
-            Map(m => m.AmountUsed).Ignore();
-        }
-    }
-
-    public class CsvParser : IParser
+    public class CsvParser<T> : IParser<T> where T : IEvent
     {
 
-        public IReadOnlyCollection<Event> Parse(string inputPath)
+        public IReadOnlyCollection<T> Parse(string inputPath)
         {
             using (var stringReader = new StreamReader(inputPath))
             using (var csvReader = new CsvReader(stringReader))
@@ -29,10 +19,10 @@ namespace PlusValuesFifo.Data
                 csvReader.Configuration.Delimiter = ";";
                 csvReader.Configuration.IgnoreBlankLines = true;
 
-                var classMapper = new EventMap();
+                var classMapper = new EventMap<T>();
                 csvReader.Configuration.RegisterClassMap(classMapper);
 
-                return csvReader.GetRecords<Event>().ToList();
+                return csvReader.GetRecords<T>().ToList();
             }
         }
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Models
 {
-    public class Event : IEvent
+    public class InputEvent : IEvent
     {
         public BuySell ActionEvent { get; set; }
 

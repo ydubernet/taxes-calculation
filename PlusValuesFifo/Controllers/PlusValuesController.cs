@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlusValuesFifo.Data;
+using PlusValuesFifo.Models;
+using PlusValuesFifo.Services;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,6 +13,15 @@ namespace PlusValuesFifo.Controllers
     [ApiController]
     public class PlusValuesController : Controller
     {
+        private readonly IPlusValuesService _plusValuesService; // TODO : It should only compute the plusValues, not retrieve data
+        private readonly IDataExporter<IEvent> _dataExporter; // TODO : That should be in a dedicated service
+
+        public PlusValuesController(IPlusValuesService plusValuesService, IDataExporter<IEvent> dataExporter)
+        {
+            _plusValuesService = plusValuesService;
+            _dataExporter = dataExporter;
+        }
+
         // GET api/values
         [HttpGet]
         public IActionResult Index()
@@ -26,8 +38,12 @@ namespace PlusValuesFifo.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("file not selected");
 
-            var bytes = Encoding.UTF8.GetBytes("hello;world");
-            return File(bytes, "text/csv");
+            // Missing step : write file on the server (maybe not, depending on what we wanna do, but implies few more changes)
+
+            _plusValuesService.TryComputePlusValues(out var outputs);
+            _dataExporter.TryExportData(outputs); // TODO : For the moment, it writes the file and returns OK. We may wanna return the file at Controller level.
+
+            return Ok(); //File(bytes, "text/csv");
         }
 
         private string GetContentType(string path)

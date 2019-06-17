@@ -8,27 +8,29 @@ namespace PlusValuesFifo.Services
 {
     public class PlusValuesService : IPlusValuesService
     {
-        private IDataLoader _dataLoader;
+        private IDataLoader<IEvent> _dataLoader;
 
-        public PlusValuesService(IDataLoader dataLoader)
+        public PlusValuesService(IDataLoader<IEvent> dataLoader)
         {
             _dataLoader = dataLoader;
         }
 
-        public bool TryComputePlusValues()
+        public bool TryComputePlusValues(out IList<OutputEvent> outputs)
         {
+            outputs = new List<OutputEvent>();
+
             // Load data
             if (!_dataLoader.TryLoadData())
             {
                 return false;
             }
 
-            // Buy data
-            List<IEvent> buyEvents = _dataLoader.GetBuyEvents().OrderBy(e => e.Date).ToList();
-            // Sell data
-            List<IEvent> sellEvents = _dataLoader.GetSellEvents().OrderBy(e => e.Date).ToList();
+            var events = _dataLoader.GetEvents();
 
-            IList<(decimal, decimal)> outputs = new List<(decimal Pmp, decimal Pv)>();
+            // Buy data
+            List<IEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
+            // Sell data
+            List<IEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
 
 
             foreach (var sellEvent in sellEvents)
@@ -44,7 +46,7 @@ namespace PlusValuesFifo.Services
                 decimal pv = (sellEvent.Price - pmp) * (sellEvent.Amount - sellEvent.AmountUsed);
 
                 // store these infos for output
-                outputs.Add((pmp, pv));
+                outputs.Add(new OutputEvent(pmp, pv, sellEvent));
 
                 Console.WriteLine($"Pmp : {pmp}, Pv : {pv}");
 
