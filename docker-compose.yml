@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  plusvaluesfifo:
+    image: ${DOCKER_REGISTRY-}plusvaluesfifo
+    build:
+      context: .
+      dockerfile: PlusValuesFifo\Dockerfile
