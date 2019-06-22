@@ -1,4 +1,5 @@
-﻿using PlusValuesFifo.Data;
+﻿using Microsoft.Extensions.Logging;
+using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
 using System;
 using System.Collections.Generic;
@@ -8,34 +9,25 @@ namespace PlusValuesFifo.Services
 {
     public class PlusValuesService : IPlusValuesService
     {
-        private IDataLoader<IEvent> _dataLoader;
+        private readonly ILogger<PlusValuesService> _logger;
 
-        public PlusValuesService(IDataLoader<IEvent> dataLoader)
+        public PlusValuesService(ILogger<PlusValuesService> logger)
         {
-            _dataLoader = dataLoader;
+            _logger = logger;
         }
 
-        public bool TryComputePlusValues(out IList<OutputEvent> outputs)
+        public bool TryComputePlusValues(IEnumerable<IEvent> events, out IList<OutputEvent> outputs)
         {
             outputs = new List<OutputEvent>();
-
-            // Load data
-            if (!_dataLoader.TryLoadData())
-            {
-                return false;
-            }
-
-            var events = _dataLoader.GetEvents();
 
             // Buy data
             List<IEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
             // Sell data
             List<IEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
 
-
             foreach (var sellEvent in sellEvents)
             {
-                Console.WriteLine($"Sell event : Date : {sellEvent.Date}, Amount : {sellEvent.Amount}, Price : {sellEvent.Price}.");
+                _logger.LogDebug($"Sell event : Date : {sellEvent.Date}, Amount : {sellEvent.Amount}, Price : {sellEvent.Price}.");
                 var previousBuyEvents = buyEvents.Where(e => e.Date <= sellEvent.Date)
                                                  .Where(e => e.AmountUsed < e.Amount) // Useless to keep buying events whose calculation has been all taken into account
                                                  .ToList();
@@ -68,10 +60,10 @@ namespace PlusValuesFifo.Services
                     }
                 }
 
-                Console.WriteLine($"Done for events prior to {sellEvent.Date}");
+                _logger.LogDebug($"Done for events prior to {sellEvent.Date}");
             }
 
-            Console.WriteLine("Done");
+           _logger.LogInformation("Done");
             return true;
         }
     }

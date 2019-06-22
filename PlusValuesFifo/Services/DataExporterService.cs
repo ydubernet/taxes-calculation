@@ -7,29 +7,28 @@ using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data
 {
-    public class DataExporter<T> : IDataExporter<T> where T : IEvent
+    public class DataExporterService<T> : IDataExporterService<T> where T : IEvent
     {
         private readonly IFileGenerator<T> _fileGenerator;
-        private readonly string _outputPath;
-        private readonly ILogger _logger;
+        private readonly ILogger<DataExporterService<T>> _logger;
 
-        public DataExporter(IFileGenerator<T> fileGenerator, string outputPath, ILogger logger)
+        public DataExporterService(IFileGenerator<T> fileGenerator, ILogger<DataExporterService<T>> logger)
         {
             _fileGenerator = fileGenerator;
-            _outputPath = outputPath;
             _logger = logger;
         }
 
-        public bool TryExportData(IEnumerable<T> events)
+        public bool TryExportData(IEnumerable<T> events, out string content)
         {
             try
             {
-                _fileGenerator.GenerateOutputFile(_outputPath, events);
+                content =_fileGenerator.GenerateOutputFile(events);
                 return true;
             }
             catch(Exception e)
             {
                 _logger.LogError(e, "Exception occured during data export");
+                content = string.Empty;
                 return false;
             }
         }

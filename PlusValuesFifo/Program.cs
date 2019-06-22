@@ -18,6 +18,13 @@ namespace PlusValuesFifo
             WebHost.CreateDefaultBuilder(args)
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build())
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                    logging.AddDebug();
+                    logging.AddEventSourceLogger();
+                })
                 .UseStartup<Startup>();
     }
 }

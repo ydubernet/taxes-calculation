@@ -9,10 +9,11 @@ namespace PlusValuesFifo.Data
 {
     public class CsvParser<T> : IParser<T> where T : IEvent
     {
+        // TODO : Add a logger
 
-        public IReadOnlyCollection<T> Parse(string inputPath)
+        public IReadOnlyCollection<T> Parse(string content)
         {
-            using (var stringReader = new StreamReader(inputPath))
+            using (var stringReader = new StringReader(content))
             using (var csvReader = new CsvReader(stringReader))
             {
                 csvReader.Configuration.HasHeaderRecord = true;

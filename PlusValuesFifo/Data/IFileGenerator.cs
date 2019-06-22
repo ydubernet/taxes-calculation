@@ -7,6 +7,6 @@ namespace PlusValuesFifo.Data
 {
     public interface IFileGenerator<T>
     {
-        void GenerateOutputFile(string outputPath, IEnumerable<T> events);
+        string GenerateOutputFile(IEnumerable<T> events);
     }
 }

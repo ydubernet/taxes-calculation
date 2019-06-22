@@ -7,26 +7,24 @@ using System.Linq;
 
 namespace PlusValuesFifo.Data
 {
-    public class DataLoader<T> : IDataLoader<T> where T : IEvent
+    public class DataLoaderService<T> : IDataLoaderService<T> where T : IEvent
     {
         private readonly IParser<T> _parser;
-        private readonly string _inputPath;
-        private readonly ILogger _logger;
+        private readonly ILogger<DataLoaderService<T>> _logger;
         private List<T> _events;
 
-        public DataLoader(IParser<T> parser, string inputPath, ILogger logger)
+        public DataLoaderService(IParser<T> parser, ILogger<DataLoaderService<T>> logger)
         {
             _parser = parser;
-            _inputPath = inputPath;
             _logger = logger;
         }
 
 
-        public bool TryLoadData()
+        public bool TryLoadData(string content)
         {
             try
             {
-                _events = _parser.Parse(_inputPath).ToList();
+                _events = _parser.Parse(content).ToList();
             }
             catch (CsvHelperException ex)
             {

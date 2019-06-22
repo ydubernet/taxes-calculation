@@ -5,6 +5,6 @@ namespace PlusValuesFifo.Services
 {
     public interface IPlusValuesService
     {
-        bool TryComputePlusValues(out IList<OutputEvent> outputs);
+        bool TryComputePlusValues(IEnumerable<IEvent> events, out IList<OutputEvent> outputs);
     }
 }

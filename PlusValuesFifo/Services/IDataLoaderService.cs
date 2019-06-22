@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace PlusValuesFifo.Data
 {
-    public interface IDataLoader<T>
+    public interface IDataLoaderService<T>
     {
-        bool TryLoadData();
+        bool TryLoadData(string content);
         IEnumerable<T> GetEvents();
     }
 }

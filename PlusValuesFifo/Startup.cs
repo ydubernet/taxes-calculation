@@ -22,25 +22,19 @@ namespace PlusValuesFifo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(loggingBuilder =>
-                loggingBuilder.AddConsole()
-                              .AddDebug()
-                              .AddEventSourceLogger()
-            );
+            services.AddSingleton<IParser<InputEvent>>(new CsvParser<InputEvent>());
+            services.AddSingleton<IFileGenerator<OutputEvent>>(new CsvGenerator<OutputEvent>());
 
-            services.AddSingleton<IParser<IEvent>>(new CsvParser<IEvent>());
+            services.AddSingleton<IDataLoaderService<InputEvent>>((sp) =>
+                new DataLoaderService<InputEvent>(sp.GetService<IParser<InputEvent>>(),
+                                              sp.GetService<ILogger<DataLoaderService<InputEvent>>>()));
 
-            services.AddSingleton<IDataLoader<IEvent>>((sp) =>
-                new DataLoader<IEvent>(sp.GetService<IParser<IEvent>>(),
-                                       Configuration.GetValue<string>("InputFilePath"),
-                                       sp.GetService<ILogger>()));
+            services.AddSingleton<IDataExporterService<OutputEvent>>((sp) =>
+                new DataExporterService<OutputEvent>(sp.GetService<IFileGenerator<OutputEvent>>(),
+                                                sp.GetService<ILogger<DataExporterService<OutputEvent>>>()));
 
-            services.AddSingleton<IDataExporter<IEvent>>((sp) =>
-                new DataExporter<IEvent>(sp.GetService<IFileGenerator<IEvent>>(),
-                                         Configuration.GetValue<string>("OutputFilePath"),
-                                         sp.GetService<ILogger>()));
-
-            services.AddSingleton<IPlusValuesService, PlusValuesService>();
+            services.AddSingleton<IPlusValuesService>((sp) =>
+                new PlusValuesService(sp.GetService<ILogger<PlusValuesService>>()));
 
             services.AddHealthChecks();
             services.AddMvc(config => config.ReturnHttpNotAcceptable = true)

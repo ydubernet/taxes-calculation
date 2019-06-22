@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data
 {
-    public interface IDataExporter<T>
+    public interface IDataExporterService<T>
     {
-        bool TryExportData(IEnumerable<T> events);
+        bool TryExportData(IEnumerable<T> events, out string content);
     }
 }
