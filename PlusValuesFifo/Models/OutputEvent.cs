@@ -22,16 +22,10 @@ namespace PlusValuesFifo.Models
         public decimal Pmp { get; }
         public decimal PlusValue { get; }
 
-
-
         public BuySell ActionEvent { get; }
-
         public decimal Amount { get; }
-
         public decimal Price { get; }
-
         public DateTime Date { get; }
-
         public decimal Fee { get; }
 
         public decimal AmountUsed { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

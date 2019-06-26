@@ -22,7 +22,7 @@ namespace PlusValuesFifo.Data
         {
             try
             {
-                content =_fileGenerator.GenerateOutputFile(events);
+                content = _fileGenerator.GenerateOutputFile(events);
                 return true;
             }
             catch(Exception e)

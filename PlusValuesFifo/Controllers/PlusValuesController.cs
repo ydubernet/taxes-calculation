@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
 using PlusValuesFifo.Services;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,7 +39,6 @@ namespace PlusValuesFifo.Controllers
         }
 
         [HttpPost]
-        //[Consumes("text/csv")]
         [Produces("text/csv")]
         //https://www.c-sharpcorner.com/article/upload-download-files-in-asp-net-core-2-0/
         public async Task<IActionResult> Post(IFormFile file)
@@ -56,59 +55,46 @@ namespace PlusValuesFifo.Controllers
                 fileContent = await streamReader.ReadToEndAsync();
             }
 
-            if(fileContent.Length == 0)
+            if (fileContent.Length == 0)
             {
                 _logger.LogError("The file content length is 0 whereas it had not been filtered by file.Length of IFileForm");
                 return BadRequest("file content before parsing was 0");
             }
 
             // Read file and parse it.
-            if(_dataLoaderService.TryLoadData(fileContent))
+            if (_dataLoaderService.TryLoadData(fileContent))
             {
                 // If it works, then compute plusvalues with imported content
                 var events = _dataLoaderService.GetEvents();
-
                 if (_plusValuesService.TryComputePlusValues(events, out var outputs))
                 {
                     string outputContent = string.Empty;
-                    if (_dataExporterService.TryExportData(outputs, out outputContent))
+
+                    // We want our CSV exported file to contain all buying entries and selling entries
+                    // TODO : That logic shouldn't be in a Controller
+                    var outputsToExport = OutputDataFormaterHelper.ConcatAllEvents(
+                                                                    events.Where(e => e.ActionEvent == BuySell.Buy).ToList(),
+                                                                    outputs);
+
+                    if (_dataExporterService.TryExportData(outputsToExport, out outputContent))
                     {
                         var bytes = Encoding.UTF8.GetBytes(outputContent);
                         return File(bytes, "text/csv", "PlusValues.csv");
                     }
                     else
+                    {
                         return BadRequest("Error whilst exporting data output");
+                    }
                 }
                 else
+                {
                     return BadRequest("Error whilst plusvalues computation");
+                }
             }
             else
+            {
                 return BadRequest("Error whilst parsing data. values have to be separated with a ;");
-        }
-
-        private string GetContentType(string path)
-        {
-            var types = GetMimeTypes();
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            return types[ext];
-        }
-
-        private Dictionary<string, string> GetMimeTypes()
-        {
-            return new Dictionary<string, string>
-                {
-                    {".txt", "text/plain"},
-                    {".pdf", "application/pdf"},
-                    {".doc", "application/vnd.ms-word"},
-                    {".docx", "application/vnd.ms-word"},
-                    {".xls", "application/vnd.ms-excel"},
-                    {".xlsx", "application/vnd.openxmlformats officedocument.spreadsheetml.sheet"},
-                    {".png", "image/png"},
-                    {".jpg", "image/jpeg"},
-                    {".jpeg", "image/jpeg"},
-                    {".gif", "image/gif"},
-                    {".csv", "text/csv"}
-                };
+            }
         }
     }
 }

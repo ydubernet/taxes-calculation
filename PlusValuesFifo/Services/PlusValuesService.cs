@@ -18,12 +18,12 @@ namespace PlusValuesFifo.Services
 
         public bool TryComputePlusValues(IEnumerable<IEvent> events, out IList<OutputEvent> outputs)
         {
-            outputs = new List<OutputEvent>();
-
             // Buy data
             List<IEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
             // Sell data
             List<IEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
+
+            outputs = new List<OutputEvent>(); // buyEvents);
 
             foreach (var sellEvent in sellEvents)
             {
@@ -63,7 +63,7 @@ namespace PlusValuesFifo.Services
                 _logger.LogDebug($"Done for events prior to {sellEvent.Date}");
             }
 
-           _logger.LogInformation("Done");
+            _logger.LogInformation("Done");
             return true;
         }
     }
