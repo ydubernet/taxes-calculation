@@ -66,29 +66,24 @@ namespace PlusValuesFifo.Controllers
             {
                 // If it works, then compute plusvalues with imported content
                 var events = _dataLoaderService.GetEvents();
-                if (_plusValuesService.TryComputePlusValues(events, out var outputs))
+                var outputs = _plusValuesService.ComputePlusValues(events);
+
+                string outputContent = string.Empty;
+
+                // We want our CSV exported file to contain all buying entries and selling entries
+                // TODO : That logic shouldn't be in a Controller
+                var outputsToExport = OutputDataFormaterHelper.ConcatAllEvents(
+                                                                events.Where(e => e.ActionEvent == BuySell.Buy).ToList(),
+                                                                outputs);
+
+                if (_dataExporterService.TryExportData(outputsToExport, out outputContent))
                 {
-                    string outputContent = string.Empty;
-
-                    // We want our CSV exported file to contain all buying entries and selling entries
-                    // TODO : That logic shouldn't be in a Controller
-                    var outputsToExport = OutputDataFormaterHelper.ConcatAllEvents(
-                                                                    events.Where(e => e.ActionEvent == BuySell.Buy).ToList(),
-                                                                    outputs);
-
-                    if (_dataExporterService.TryExportData(outputsToExport, out outputContent))
-                    {
-                        var bytes = Encoding.UTF8.GetBytes(outputContent);
-                        return File(bytes, "text/csv", "PlusValues.csv");
-                    }
-                    else
-                    {
-                        return BadRequest("Error whilst exporting data output");
-                    }
+                    var bytes = Encoding.UTF8.GetBytes(outputContent);
+                    return File(bytes, "text/csv", "PlusValues.csv");
                 }
                 else
                 {
-                    return BadRequest("Error whilst plusvalues computation");
+                    return BadRequest("Error whilst exporting data output");
                 }
             }
             else

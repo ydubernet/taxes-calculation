@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
 using System;
 using System.Collections.Generic;
@@ -16,14 +15,32 @@ namespace PlusValuesFifo.Services
             _logger = logger;
         }
 
-        public bool TryComputePlusValues(IEnumerable<IEvent> events, out IList<OutputEvent> outputs)
+        // TODO : For first version, since we don't support short selling, add a sanity check so we wouldn't be selling more than what we own
+
+        public IList<OutputEvent> ComputePlusValues(IEnumerable<IEvent> events)
+        {
+            var outputs = new List<OutputEvent>();
+
+            foreach (var assetEvents in events.GroupBy(e => e.AssetName))
+            {
+                var assetOutputs = ComputePlusValuesForEachAsset(assetEvents);
+                outputs.AddRange(assetOutputs);
+                _logger.LogInformation($"Done for asset : {assetEvents.Key}");
+            }
+
+            _logger.LogInformation("Done");
+
+            return outputs;
+        }
+
+        private IList<OutputEvent> ComputePlusValuesForEachAsset(IEnumerable<IEvent> events)
         {
             // Buy data
             List<IEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
             // Sell data
             List<IEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
 
-            outputs = new List<OutputEvent>(); // buyEvents);
+            var outputs = new List<OutputEvent>();
 
             foreach (var sellEvent in sellEvents)
             {
@@ -59,12 +76,9 @@ namespace PlusValuesFifo.Services
                         previousBuyEvent.AmountUsed = previousBuyEvent.Amount;
                     }
                 }
-
                 _logger.LogDebug($"Done for events prior to {sellEvent.Date}");
             }
-
-            _logger.LogInformation("Done");
-            return true;
+            return outputs;
         }
     }
 }

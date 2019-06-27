@@ -7,6 +7,8 @@ namespace PlusValuesFifo.Models
 {
     public class InputEvent : IEvent
     {
+        public string AssetName { get; set; }
+
         public BuySell ActionEvent { get; set; }
 
         public decimal Amount { get; set; }

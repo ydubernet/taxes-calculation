@@ -4,6 +4,7 @@ namespace PlusValuesFifo.Models
 {
     public interface IEvent
     {
+        string AssetName { get; }
         BuySell ActionEvent { get; }
         decimal Amount { get; }
         decimal Price { get; }

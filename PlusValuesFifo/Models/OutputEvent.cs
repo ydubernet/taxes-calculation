@@ -12,12 +12,15 @@ namespace PlusValuesFifo.Models
             Pmp = pmp;
             PlusValue = pv;
 
+            AssetName = inputEvent.AssetName;
             ActionEvent = inputEvent.ActionEvent;
             Amount = inputEvent.Amount;
             Price = inputEvent.Price;
             Date = inputEvent.Date;
             Fee = inputEvent.Fee;
         }
+
+        public string AssetName { get; }
 
         public decimal Pmp { get; }
         public decimal PlusValue { get; }

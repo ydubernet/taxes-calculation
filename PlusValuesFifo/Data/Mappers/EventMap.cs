@@ -12,6 +12,7 @@ namespace PlusValuesFifo.Data.Mappers
         public EventMap()
         {
             AutoMap();
+            Map(m => m.AssetName).Name("Name");
             Map(m => m.Fee).Name("Fee").Default(0.0m);
             Map(m => m.AmountUsed).Ignore();
         }
