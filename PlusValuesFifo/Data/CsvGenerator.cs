@@ -10,7 +10,10 @@ using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data
 {
-    public class CsvGenerator<T> : IFileGenerator<T> where T : IEvent
+    //// It could be cool to have T where T : ClassMap to have different csv mappers.
+    //// and yet to keep the OutputEvent class as a normal input of GenerateOutputFile
+    //// since it doesn't need to have different kinds of IEvent
+    public class CsvGenerator<T> : IFileGenerator<T> where T : OutputEvent
     {
         // TOOD : Add a logger
 
@@ -23,7 +26,7 @@ namespace PlusValuesFifo.Data
                 csvWriter.Configuration.HasHeaderRecord = true;
                 csvWriter.Configuration.Delimiter = ";";
 
-                var classMapper = new EventMap<T>();
+                var classMapper = new OutputEventMap();
                 csvWriter.Configuration.RegisterClassMap(classMapper);
 
                 csvWriter.WriteRecords(events);

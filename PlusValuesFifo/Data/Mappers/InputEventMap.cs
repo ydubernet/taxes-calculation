@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data.Mappers
 {
-    public class EventMap<T> : ClassMap<T> where T : IEvent
+    public class InputEventMap : ClassMap<InputEvent>
     {
-        public EventMap()
+        public InputEventMap()
         {
             AutoMap();
             Map(m => m.AssetName).Name("Name");

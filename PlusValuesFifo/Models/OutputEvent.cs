@@ -20,6 +20,7 @@ namespace PlusValuesFifo.Models
             Fee = inputEvent.Fee;
         }
 
+        // CsvHelper generates the CSV output accorging to the bellow order
         public string AssetName { get; }
 
         public decimal Pmp { get; }

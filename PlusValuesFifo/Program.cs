@@ -22,6 +22,7 @@ namespace PlusValuesFifo
                 {
                     logging.ClearProviders();
                     logging.AddConsole();
+                    logging.AddFile();
                     logging.AddDebug();
                     logging.AddEventSourceLogger();
                 })

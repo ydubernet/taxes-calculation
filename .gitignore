@@ -264,3 +264,4 @@ __pycache__/
 # Personal entries
 *.csv
 **/*.csv # In order to avoid pushing any kind of CSV file which would contain actual real transaction data
+Logs/
