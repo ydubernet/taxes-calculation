@@ -31,7 +31,7 @@ namespace PlusValuesFifoUnitTests
             var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
 
             Assert.NotNull(outputEvents);
-            Assert.Equal(1, outputEvents.Count);
+            Assert.NotEmpty(outputEvents);
             Assert.NotNull(outputEvents.Single());
             Assert.Equal(105, outputEvents.Single().Pmp);
             Assert.Equal(2250, outputEvents.Single().PlusValue);
@@ -53,7 +53,7 @@ namespace PlusValuesFifoUnitTests
             var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
 
             Assert.NotNull(outputEvents);
-            Assert.Equal(1, outputEvents.Count);
+            Assert.NotEmpty(outputEvents);
             Assert.NotNull(outputEvents.Single());
             Assert.Equal(42.12m, outputEvents.Single().Pmp);
             Assert.Equal(43.85m - 42.12m, outputEvents.Single().PlusValue);
@@ -106,7 +106,41 @@ namespace PlusValuesFifoUnitTests
         [Fact]
         public void Test_PlusValuesService_With_Multiple_Buy_Sell_Without_Selling_Everything_At_Once()
         {
+            var buyingEvent1 = new InputEvent("BTC", BuySell.Buy, 0.2m, 1000m, DateTime.Now.AddYears(-1), 25m);
+	        var sellingEvent1 = new InputEvent("BTC", BuySell.Sell, 0.1m, 1500m, DateTime.Now.AddMonths(-11), 25m);
+	        var buyingEvent2 = new InputEvent("BTC", BuySell.Buy, 0.3m, 1600m, DateTime.Now.AddMonths(-6), 25m);
+	        var buyingEvent3 = new InputEvent("BTC", BuySell.Buy, 0.1m, 1550m, DateTime.Now.AddMonths(-5), 25m);
+	        var sellingEvent2 = new InputEvent("BTC", BuySell.Sell, 0.4m, 1900m, DateTime.Now.AddMonths(-4), 25m);
 
+	        var allInputEvents = new List<InputEvent>() { buyingEvent1, sellingEvent1, buyingEvent2, buyingEvent3, sellingEvent2 };
+
+	        var plusValuesServices = new PlusValuesService(_logger);
+	        var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
+
+	        Assert.NotNull(outputEvents);
+
+	        // Since there has been 2 selling events, there has to be 2 computed output events
+	        Assert.Equal(2, outputEvents.Count);
+	        Assert.NotNull(outputEvents[0]);
+	        Assert.NotNull(outputEvents[1]);
+
+	        Assert.Equal("BTC", outputEvents[0].AssetName);
+	        Assert.Equal(1000m, outputEvents[0].Pmp);
+	        Assert.Equal(50m, outputEvents[0].PlusValue);
+	        Assert.Equal(0.2m, buyingEvent1.AmountUsed); // It got all used since sellingEvent2 happened
+	        Assert.Equal(0.1m, sellingEvent1.AmountUsed);
+            Assert.Equal((0.1m * 1000m + 0.3m * 1600m + 0.1m * 1550m) / 0.5m, outputEvents[1].Pmp);
+            Assert.Equal((1900m - outputEvents[1].Pmp) * 0.4m, outputEvents[1].PlusValue);
+            Assert.Equal(0.3m, buyingEvent2.AmountUsed);
+
+            // Eventhough we use buyingEvent3 in the weighted average price computation
+            // since this buyingEvent happened before sellingEvent2,
+            // it's still not taken into account in the Fifo algorithm
+            // because sellingEvent2 didn't sell enough for it to even be partly removed from computation
+            Assert.Equal(0m, buyingEvent3.AmountUsed);
+            Assert.Equal(0.4m, sellingEvent2.AmountUsed);
+
+            // At the end of this test scenario case, the owner still owns 0.1 BTC
         }
     }
 }
