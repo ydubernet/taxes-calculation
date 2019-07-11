@@ -65,12 +65,47 @@ namespace PlusValuesFifoUnitTests
         [Fact]
         public void Test_PlusValue_Service_Behaves_Correctly_With_Many_Assets_In_Input()
         {
-            var facebookBuyEvent2 = new InputEvent("FB UW", BuySell.Buy, 2, 178.5m, new DateTime(2018, 7, 27, 15, 33, 00), 0.51m);
-            var facebookBuyEvent1 = new InputEvent("FB UW", BuySell.Buy, 2, 164m, new DateTime(2018, 04, 16, 16, 49, 00), 0.51m);
-            var spotifyBuyEvent1 = new InputEvent("SPOT", BuySell.Buy, 3, 147m, new DateTime(2018, 04, 16, 16, 26, 00), 0.51m);
-            var spotifySellEvent1 = new InputEvent("SPOT", BuySell.Sell, 3, 114.28m, new DateTime(2018, 12, 21, 15, 33, 00), 0.51m);
-            var spotifyBuyEvent2 = new InputEvent("SPOT", BuySell.Buy, 2, 111.67m, new DateTime(2018, 12, 26, 15, 30, 00), 0.51m);
-            var facebookSellEvent1 = new InputEvent("FB UW", BuySell.Sell, 2, 125.99m, new DateTime(2018, 12, 26, 15, 30, 00), 0.51m);
+            var facebookBuyEvent2 = new InputEvent("FB UW", BuySell.Buy, 2, 153.14m, new DateTime(2017, 7, 25), 0.51m);
+            var facebookBuyEvent1 = new InputEvent("FB UW", BuySell.Buy, 2, 132.39m, new DateTime(2017, 4, 15), 0.51m);
+            var spotifyBuyEvent1 = new InputEvent("SPOT", BuySell.Buy, 3, 118m + 2/3m, new DateTime(2017, 4, 14), 0.51m);
+            var spotifySellEvent1 = new InputEvent("SPOT", BuySell.Sell, 3, 100.14666666667m, new DateTime(2017, 12, 1), 0.51m);
+            var spotifyBuyEvent2 = new InputEvent("SPOT", BuySell.Buy, 2, 97.89m, new DateTime(2017, 12, 5), 0.51m);
+            var facebookSellEvent1 = new InputEvent("FB UW", BuySell.Sell, 2, 110.765m, new DateTime(2017, 12, 5), 0.51m);
+
+            var allInputEvents = new List<InputEvent>() { facebookBuyEvent2, facebookBuyEvent1, spotifyBuyEvent1, spotifySellEvent1, spotifyBuyEvent2, facebookSellEvent1 };
+
+            var plusValuesServices = new PlusValuesService(_logger);
+            var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
+
+
+            Assert.NotNull(outputEvents);
+            Assert.Equal(2, outputEvents.Count);
+            Assert.NotNull(outputEvents[0]);
+            Assert.NotNull(outputEvents[1]);
+
+            // Since we group events by their asset name facebook should be the first in the list
+            var facebookOutputEvent = outputEvents[0];
+            var spotifyOutputEvent = outputEvents[1];
+
+            Assert.Equal("SPOT", spotifyOutputEvent.AssetName);
+            Assert.Equal("FB UW", facebookOutputEvent.AssetName);
+
+            Assert.Equal(142.765m, facebookOutputEvent.Pmp);
+            Assert.Equal(-64m, facebookOutputEvent.PlusValue);
+            Assert.Equal(2, facebookBuyEvent1.AmountUsed);
+            Assert.Equal(0, facebookBuyEvent2.AmountUsed);
+            Assert.Equal(2, facebookSellEvent1.AmountUsed);
+
+            Assert.Equal(118 + 2 / 3m, spotifyOutputEvent.Pmp);
+            Assert.Equal(-55.56m, spotifyOutputEvent.PlusValue, 3);
+            Assert.Equal(3, spotifyBuyEvent1.AmountUsed);
+            Assert.Equal(0, spotifyBuyEvent2.AmountUsed);
+            Assert.Equal(3, spotifySellEvent1.AmountUsed);
+        }
+
+        [Fact]
+        public void Test_PlusValuesService_With_Multiple_Buy_Sell_Without_Selling_Everything_At_Once()
+        {
 
         }
     }
