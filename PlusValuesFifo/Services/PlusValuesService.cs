@@ -6,6 +6,12 @@ using System.Linq;
 
 namespace PlusValuesFifo.Services
 {
+    /// <summary>
+    /// Service calculating the Capital Gains of a given list of buy and sell events
+    ///
+    /// At the moment, it's only been tested with Long Buy-Sell events.
+    /// It has not been tested with Short Sell-Buy strategies.
+    /// </summary>
     public class PlusValuesService : IPlusValuesService
     {
         private readonly ILogger<PlusValuesService> _logger;
@@ -70,7 +76,7 @@ namespace PlusValuesFifo.Services
                         previousBuyEvent.AmountUsed += (sellEvent.Amount - sellEvent.AmountUsed);
                         sellEvent.AmountUsed = sellEvent.Amount;
                     }
-                    else //if(previousBuyEvent.AmountUsed + sellEvent.Amount - sellEvent.AmountUsed > previousBuyEvent.Amount)
+                    else
                     {
                         sellEvent.AmountUsed += (previousBuyEvent.Amount - previousBuyEvent.AmountUsed);
                         previousBuyEvent.AmountUsed = previousBuyEvent.Amount;

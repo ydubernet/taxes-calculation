@@ -33,8 +33,8 @@ namespace PlusValuesFifo.Data
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unmanaged error... :(");
-                throw;
+                _logger.LogError(ex, $"Unmanaged error... That's all we know... :(");
+                throw ex;
             }
             return true;
         }

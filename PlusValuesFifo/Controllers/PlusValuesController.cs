@@ -31,7 +31,6 @@ namespace PlusValuesFifo.Controllers
             _logger = logger;
         }
 
-        // GET api/values
         [HttpGet]
         public IActionResult Index()
         {

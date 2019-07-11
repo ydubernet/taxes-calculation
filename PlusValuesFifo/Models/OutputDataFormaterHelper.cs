@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PlusValuesFifo.Services
 {
     /// <summary>
-    /// This service intends to create an OutputEvent collection
+    /// This helper intends to create an OutputEvent collection
     /// containing already existing output events (for instance would contain pmp, pv after computation)
     /// and to add it input events which won't have had any needed computation and won't then be in the outputEvents collection
     /// </summary>
