@@ -63,7 +63,7 @@ namespace PlusValuesFifo.Services
                 // store these infos for output
                 outputs.Add(new OutputEvent(pmp, pv, sellEvent));
 
-                Console.WriteLine($"Pmp : {pmp}, Pv : {pv}");
+                _logger.LogDebug($"Pmp : {pmp}, Pv : {pv}");
 
                 // Appliance of the FIFO algorithm :
                 foreach (var previousBuyEvent in previousBuyEvents)
