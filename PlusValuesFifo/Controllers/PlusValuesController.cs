@@ -31,28 +31,28 @@ namespace PlusValuesFifo.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public IActionResult Index()
-        {
-            return View();
-        }
+        //[HttpGet]
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //}
 
         [HttpPost]
         [Produces("text/csv")]
         //https://www.c-sharpcorner.com/article/upload-download-files-in-asp-net-core-2-0/
-        public async Task<IActionResult> Post(IFormFile file)
+        public async Task<IActionResult> Post(string fileContent)
         {
-            if (file == null || file.Length == 0)
+            if (fileContent == null || fileContent.Length == 0)
                 return BadRequest("file not selected");
 
-            if (!file.FileName.EndsWith(".csv"))
-                return BadRequest("only CSV is supported");
+            //if (!file.FileName.EndsWith(".csv"))
+            //    return BadRequest("only CSV is supported");
 
-            string fileContent = string.Empty;
-            using (var streamReader = new StreamReader(file.OpenReadStream()))
-            {
-                fileContent = await streamReader.ReadToEndAsync();
-            }
+            //string fileContent = string.Empty;
+            //using (var streamReader = new StreamReader(file.OpenReadStream()))
+            //{
+            //    fileContent = await streamReader.ReadToEndAsync();
+            //}
 
             if (fileContent.Length == 0)
             {
