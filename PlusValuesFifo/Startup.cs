@@ -38,7 +38,7 @@ namespace PlusValuesFifo
                 new PlusValuesService(sp.GetService<ILogger<PlusValuesService>>()));
 
             services.AddHealthChecks();
-            services.AddMvc(config => config.ReturnHttpNotAcceptable = true)
+            services.AddMvc()
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // In production, the React files will be served from this directory
