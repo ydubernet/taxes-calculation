@@ -7,6 +7,21 @@ namespace PlusValuesFifo.Models
 {
     public class InputEvent : IEvent
     {
+        /// <summary>
+        /// Empty ctor for being able decode a csv input file containing a list of input events
+        /// </summary>
+        public InputEvent() { }
+
+
+        /// <summary>
+        /// Ctor for test purposes
+        /// </summary>
+        /// <param name="assetName"></param>
+        /// <param name="actionEvent"></param>
+        /// <param name="amount"></param>
+        /// <param name="price"></param>
+        /// <param name="date"></param>
+        /// <param name="fee"></param>
         public InputEvent(string assetName,
                           BuySell actionEvent,
                           decimal amount,
