@@ -1,31 +1,39 @@
-﻿import React, { Component } from 'react';
+﻿// Clearly inspired from https://gist.github.com/AshikNesin/e44b1950f6a24cfcd85330ffc1713513
+
+import React, { Component } from 'react';
+import axios, { post } from 'axios';
 
 export class CapitalGain extends Component {
-    static displayName = CapitalGain.name;
 
     constructor(props) {
         super(props);
-        //this.capitalGain = React.createRef();
-        //this.handleSubmit = this.handleSubmit.bind(this);
+        this.state = {
+            file: null
+        }
+        this.onFormSubmit = this.onFormSubmit.bind(this)
+        this.onChange = this.onChange.bind(this)
+        this.fileUpload = this.fileUpload.bind(this)
     }
-
-    uploadFile(file) {
-        fetch('/api/plusvalues', {
-            method: 'POST',
-            body: file
+    onFormSubmit(e) {
+        e.preventDefault() // Stop form submit
+        this.fileUpload(this.state.file).then((response) => {
+            console.log(response.data);
         })
-        //.then(response => response.json())
-        .then(success => {
-            console.log('success');
-        })
-        .catch(error => console.log(error));
     }
-
-
-    //handleSubmit(event) {
-    //    event.preventDefault();
-    //    const fileData = this.capitalGain.current.files[0];
-    //}
+    onChange(e) {
+        this.setState({ file: e.target.files[0] })
+    }
+    fileUpload(file) {
+        const url = '/api/plusvalues';
+        const formData = new FormData();
+        formData.append('file', file)
+        const config = {
+            headers: {
+                'content-type': 'multipart/form-data'
+            }
+        }
+        return post(url, formData, config)
+    }
 
     render() {
         return (
@@ -34,9 +42,9 @@ export class CapitalGain extends Component {
 
                 <p>In order to compute your capital gains, please import a CSV file containing your buy & sell events:</p>
 
-                <form method="post" encType="multipart/form-data" onSubmit={this.uploadFile}>
-                    <input type="file" name="file" text="Your input file" />
-                    <button type="submit">Compute Capital Gain</button>
+                <form onSubmit={this.onFormSubmit}>
+                    <input type="file" onChange={this.onChange} />
+                    <button type="submit">Upload</button>
                 </form>
             </div>
         );
