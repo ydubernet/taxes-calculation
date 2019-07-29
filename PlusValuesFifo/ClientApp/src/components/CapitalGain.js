@@ -1,7 +1,8 @@
 ﻿// Clearly inspired from https://gist.github.com/AshikNesin/e44b1950f6a24cfcd85330ffc1713513
 
 import React, { Component } from 'react';
-import axios, { post } from 'axios';
+import { post } from 'axios';
+import { saveAs } from 'file-saver';
 
 export class CapitalGain extends Component {
 
@@ -16,9 +17,15 @@ export class CapitalGain extends Component {
     }
     onFormSubmit(e) {
         e.preventDefault() // Stop form submit
-        this.fileUpload(this.state.file).then((response) => {
-            console.log(response.data);
-        })
+        this.fileUpload(this.state.file)
+            .then((response) => {
+                this.setState({ error: '', msg: 'Successfully uploaded file' });
+                var blob = new Blob([response.data]);
+                saveAs(blob, 'PlusValues.csv');
+        }).catch(err => {
+            this.setState({ error: err });
+            console.log(err);
+        });
     }
     onChange(e) {
         this.setState({ file: e.target.files[0] })
