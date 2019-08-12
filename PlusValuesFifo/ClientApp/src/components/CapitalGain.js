@@ -20,7 +20,7 @@ export class CapitalGain extends Component {
         this.fileUpload(this.state.file)
             .then((response) => {
                 this.setState({ error: '', msg: 'Successfully uploaded file' });
-                var blob = new Blob([response.data]);
+                var blob = new Blob([response.data], { type: "text/csv;charset=utf-8" });
                 saveAs(blob, 'PlusValues.csv');
         }).catch(err => {
             this.setState({ error: err });
