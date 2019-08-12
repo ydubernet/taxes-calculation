@@ -23,7 +23,9 @@ namespace PlusValuesFifo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IParser<InputEvent>>(new CsvParser<InputEvent>());
+            services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+
+            services.AddSingleton<IParser<InputEvent>>(sp => new CsvParser<InputEvent>(sp.GetService<ILoggerFactory>()));
             services.AddSingleton<IFileGenerator<OutputEvent>>(new CsvGenerator<OutputEvent>());
 
             services.AddSingleton<IDataLoaderService<InputEvent>>((sp) =>

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data.Mappers
 {
-    public class InputEventMap : ClassMap<InputEvent>
+    public class InputEventMap<T> : ClassMap<T> where T : IEvent
     {
         public InputEventMap()
         {

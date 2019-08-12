@@ -1,4 +1,6 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
+using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Data.Mappers;
 using PlusValuesFifo.Models;
 using System.Collections.Generic;
@@ -9,10 +11,18 @@ namespace PlusValuesFifo.Data
 {
     public class CsvParser<T> : IParser<T> where T : InputEvent
     {
-        // TODO : Add a logger
+        private readonly ILogger<CsvParser<T>> _logger;
 
-        public IReadOnlyCollection<T> Parse(string content)
+        public CsvParser(ILoggerFactory loggerFactory)
         {
+            _logger = loggerFactory.CreateLogger<CsvParser<T>>();
+        }
+
+
+        public IReadOnlyCollection<T> Parse(string content, ClassMap<T> classMapper)
+        {
+            _logger.LogInformation($"Starting content parsing with {classMapper.GetType().Name} kind.");
+
             using (var stringReader = new StringReader(content))
             using (var csvReader = new CsvReader(stringReader))
             {
@@ -20,7 +30,6 @@ namespace PlusValuesFifo.Data
                 csvReader.Configuration.Delimiter = ";";
                 csvReader.Configuration.IgnoreBlankLines = true;
 
-                var classMapper = new InputEventMap();
                 csvReader.Configuration.RegisterClassMap(classMapper);
 
                 return csvReader.GetRecords<T>().ToList();

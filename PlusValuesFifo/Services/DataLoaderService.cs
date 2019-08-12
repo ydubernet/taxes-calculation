@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using Microsoft.Extensions.Logging;
+using PlusValuesFifo.Data.Mappers;
 using PlusValuesFifo.Models;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace PlusValuesFifo.Data
         {
             try
             {
-                _events = _parser.Parse(content).ToList();
+                _events = _parser.Parse(content, new InputEventMap<T>()).ToList();
             }
             catch (CsvHelperException ex)
             {
