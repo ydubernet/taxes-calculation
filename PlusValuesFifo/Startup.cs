@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
+using PlusValuesFifo.ServiceProviders;
 using PlusValuesFifo.Services;
 
 namespace PlusValuesFifo
@@ -30,14 +31,13 @@ namespace PlusValuesFifo
 
             services.AddSingleton<IDataLoaderService<InputEvent>>((sp) =>
                 new DataLoaderService<InputEvent>(sp.GetService<IParser<InputEvent>>(),
-                                              sp.GetService<ILogger<DataLoaderService<InputEvent>>>()));
+                                                  sp.GetService<ILoggerFactory>()));
 
             services.AddSingleton<IDataExporterService<OutputEvent>>((sp) =>
                 new DataExporterService<OutputEvent>(sp.GetService<IFileGenerator<OutputEvent>>(),
-                                                sp.GetService<ILogger<DataExporterService<OutputEvent>>>()));
+                                                     sp.GetService<ILoggerFactory>()));
 
-            services.AddSingleton<IPlusValuesService>((sp) =>
-                new EquitiesPlusValuesService(sp.GetService<ILogger<EquitiesPlusValuesService>>()));
+            services.AddSingleton<IPlusValuesServiceProvider, PlusValuesServiceProvider>();
 
             services.AddHealthChecks();
             services.AddMvc()

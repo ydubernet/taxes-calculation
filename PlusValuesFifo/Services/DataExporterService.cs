@@ -10,12 +10,12 @@ namespace PlusValuesFifo.Data
     public class DataExporterService<T> : IDataExporterService<T> where T : IEvent
     {
         private readonly IFileGenerator<T> _fileGenerator;
-        private readonly ILogger<DataExporterService<T>> _logger;
+        private readonly ILogger<DataLoaderService<T>> _logger;
 
-        public DataExporterService(IFileGenerator<T> fileGenerator, ILogger<DataExporterService<T>> logger)
+        public DataExporterService(IFileGenerator<T> fileGenerator, ILoggerFactory loggerFactory)
         {
             _fileGenerator = fileGenerator;
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger<DataLoaderService<T>>();
         }
 
         public bool TryExportData(IEnumerable<T> events, out string content)

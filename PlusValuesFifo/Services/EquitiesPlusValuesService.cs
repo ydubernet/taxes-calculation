@@ -7,11 +7,11 @@ namespace PlusValuesFifo.Services
 {
     /// <summary>
     /// Service computing the Equities Capital Gains of a given list of buy and sell events
-    /// 
+    ///
     /// (c) 2019 - Yoann DUBERNET yoann [dot] dubernet [at] gmail [dot] com
-    /// 
+    ///
     /// By "Service", we mean the service the contained code of this file implements
-    /// 
+    ///
     /// SPECIFIC LICENCE APPLYING TO THIS SERVICE :
     /// - THIS SERVICE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
     ///   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -22,8 +22,8 @@ namespace PlusValuesFifo.Services
     ///   re-use this service for your own software(s) if and only if the software(s) using it is(are) free and open-sourced.
     /// - By reusing this service, you agree to quote its original author and all its contributors in a COPYRIGHT file
     ///   and to notify them of your usage.
-    ///  
-    /// Disclamers : 
+    ///
+    /// Disclamers :
     /// - This service computes Capital Gain for EQUITIES ONLY
     ///   It is based on notice2074 2018 French Taxes declaration.
     /// - Do not forget that taxes forms change every year, this service may not be up date when you use it
@@ -42,9 +42,9 @@ namespace PlusValuesFifo.Services
     {
         private readonly ILogger<EquitiesPlusValuesService> _logger;
 
-        public EquitiesPlusValuesService(ILogger<EquitiesPlusValuesService> logger)
+        public EquitiesPlusValuesService(ILoggerFactory loggerFactory)
         {
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger<EquitiesPlusValuesService>();
         }
 
         // TODO : For first version, since we don't support short selling, add a sanity check so we wouldn't be selling more than what we own

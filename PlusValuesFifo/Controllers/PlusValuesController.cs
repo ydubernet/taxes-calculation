@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
+using PlusValuesFifo.ServiceProviders;
 using PlusValuesFifo.Services;
 using System.IO;
 using System.Linq;
@@ -15,17 +16,17 @@ namespace PlusValuesFifo.Controllers
     [ApiController]
     public class PlusValuesController : Controller
     {
-        private readonly IPlusValuesService _plusValuesService;
+        private readonly IPlusValuesServiceProvider _plusValuesServiceProvider;
         private readonly IDataLoaderService<InputEvent> _dataLoaderService;
         private readonly IDataExporterService<OutputEvent> _dataExporterService;
         private readonly ILogger<PlusValuesController> _logger;
 
-        public PlusValuesController(IPlusValuesService plusValuesService,
+        public PlusValuesController(IPlusValuesServiceProvider plusValuesServiceProvider,
             IDataLoaderService<InputEvent> dataLoaderService,
             IDataExporterService<OutputEvent> dataExporterService,
             ILogger<PlusValuesController> logger)
         {
-            _plusValuesService = plusValuesService;
+            _plusValuesServiceProvider = plusValuesServiceProvider;
             _dataLoaderService = dataLoaderService;
             _dataExporterService = dataExporterService;
             _logger = logger;
@@ -59,7 +60,9 @@ namespace PlusValuesFifo.Controllers
             {
                 // If it works, then compute plusvalues with imported content
                 var events = _dataLoaderService.GetEvents();
-                var outputs = _plusValuesService.ComputePlusValues(events);
+
+                var plusValueService = _plusValuesServiceProvider.GetPlusValuesService(AssetType.Equity); // We don't support crypto yet
+                var outputs = plusValueService.ComputePlusValues(events);
 
                 string outputContent = string.Empty;
 

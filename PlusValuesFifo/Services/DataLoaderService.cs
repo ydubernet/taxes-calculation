@@ -14,10 +14,10 @@ namespace PlusValuesFifo.Data
         private readonly ILogger<DataLoaderService<T>> _logger;
         private List<T> _events;
 
-        public DataLoaderService(IParser<T> parser, ILogger<DataLoaderService<T>> logger)
+        public DataLoaderService(IParser<T> parser, ILoggerFactory loggerFactory)
         {
             _parser = parser;
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger<DataLoaderService<T>>();
         }
 
 

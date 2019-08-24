@@ -9,13 +9,13 @@ using System.Linq;
 
 namespace PlusValuesFifoUnitTests
 {
-    public class PlusValuesServiceTests
+    public class EquitiesPlusValuesServiceTests
     {
-        private readonly ILogger<EquitiesPlusValuesService> _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public PlusValuesServiceTests()
+        public EquitiesPlusValuesServiceTests()
         {
-            _logger = new Mock<ILogger<EquitiesPlusValuesService>>().Object;
+            _loggerFactory = new Mock<ILoggerFactory>().Object;
         }
 
         [Fact]
@@ -27,8 +27,8 @@ namespace PlusValuesFifoUnitTests
 
             var allInputEvents = new List<InputEvent>() { buyingEvent1, buyingEvent2, sellingEvent };
 
-            var plusValuesServices = new EquitiesPlusValuesService(_logger);
-            var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
+            var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
+            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
 
             Assert.NotNull(outputEvents);
             Assert.NotEmpty(outputEvents);
@@ -49,8 +49,8 @@ namespace PlusValuesFifoUnitTests
 
             var allInputEvents = new List<InputEvent>() { buyEvent, sellEvent };
 
-            var plusValuesServices = new EquitiesPlusValuesService(_logger);
-            var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
+            var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
+            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
 
             Assert.NotNull(outputEvents);
             Assert.NotEmpty(outputEvents);
@@ -74,8 +74,8 @@ namespace PlusValuesFifoUnitTests
 
             var allInputEvents = new List<InputEvent>() { facebookBuyEvent2, facebookBuyEvent1, spotifyBuyEvent1, spotifySellEvent1, spotifyBuyEvent2, facebookSellEvent1 };
 
-            var plusValuesServices = new EquitiesPlusValuesService(_logger);
-            var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
+            var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
+            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
 
 
             Assert.NotNull(outputEvents);
@@ -104,7 +104,7 @@ namespace PlusValuesFifoUnitTests
         }
 
         [Fact]
-        public void Test_PlusValuesService_With_Multiple_Buy_Sell_Without_Selling_Everything_At_Once()
+        public void Test_EquitiesPlusValuesService_With_Multiple_Buy_Sell_Without_Selling_Everything_At_Once()
         {
             var buyingEvent1 = new InputEvent("BTC", BuySell.Buy, 0.2m, 1000m, DateTime.Now.AddYears(-1), 25m);
 	        var sellingEvent1 = new InputEvent("BTC", BuySell.Sell, 0.1m, 1500m, DateTime.Now.AddMonths(-11), 25m);
@@ -114,8 +114,8 @@ namespace PlusValuesFifoUnitTests
 
 	        var allInputEvents = new List<InputEvent>() { buyingEvent1, sellingEvent1, buyingEvent2, buyingEvent3, sellingEvent2 };
 
-	        var plusValuesServices = new EquitiesPlusValuesService(_logger);
-	        var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
+	        var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
+	        var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
 
 	        Assert.NotNull(outputEvents);
 
