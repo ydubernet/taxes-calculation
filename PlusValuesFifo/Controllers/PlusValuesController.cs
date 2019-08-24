@@ -5,6 +5,7 @@ using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
 using PlusValuesFifo.ServiceProviders;
 using PlusValuesFifo.Services;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,8 +36,11 @@ namespace PlusValuesFifo.Controllers
         [HttpPost]
         [Produces("text/csv")]
         //https://www.c-sharpcorner.com/article/upload-download-files-in-asp-net-core-2-0/
-        public async Task<IActionResult> Post(IFormFile file)
+        public async Task<IActionResult> Post(IFormCollection form)
         {
+            var assetTypeString = form["assetType"];
+            var file = form.Files["file"];
+
             if (file == null || file.Length == 0)
                 return BadRequest("file not selected");
 
@@ -61,7 +65,8 @@ namespace PlusValuesFifo.Controllers
                 // If it works, then compute plusvalues with imported content
                 var events = _dataLoaderService.GetEvents();
 
-                var plusValueService = _plusValuesServiceProvider.GetPlusValuesService(AssetType.Equity); // We don't support crypto yet
+                Enum.TryParse<AssetType>(assetTypeString, out var assetType);
+                var plusValueService = _plusValuesServiceProvider.GetPlusValuesService(assetType);
                 var outputs = plusValueService.ComputePlusValues(events);
 
                 string outputContent = string.Empty;

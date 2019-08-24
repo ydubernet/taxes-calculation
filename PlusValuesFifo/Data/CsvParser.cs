@@ -1,7 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.Extensions.Logging;
-using PlusValuesFifo.Data.Mappers;
 using PlusValuesFifo.Models;
 using System.Collections.Generic;
 using System.IO;
