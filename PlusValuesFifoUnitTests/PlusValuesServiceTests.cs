@@ -11,11 +11,11 @@ namespace PlusValuesFifoUnitTests
 {
     public class PlusValuesServiceTests
     {
-        private readonly ILogger<PlusValuesService> _logger;
+        private readonly ILogger<EquitiesPlusValuesService> _logger;
 
         public PlusValuesServiceTests()
         {
-            _logger = new Mock<ILogger<PlusValuesService>>().Object;
+            _logger = new Mock<ILogger<EquitiesPlusValuesService>>().Object;
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace PlusValuesFifoUnitTests
 
             var allInputEvents = new List<InputEvent>() { buyingEvent1, buyingEvent2, sellingEvent };
 
-            var plusValuesServices = new PlusValuesService(_logger);
+            var plusValuesServices = new EquitiesPlusValuesService(_logger);
             var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
 
             Assert.NotNull(outputEvents);
@@ -49,7 +49,7 @@ namespace PlusValuesFifoUnitTests
 
             var allInputEvents = new List<InputEvent>() { buyEvent, sellEvent };
 
-            var plusValuesServices = new PlusValuesService(_logger);
+            var plusValuesServices = new EquitiesPlusValuesService(_logger);
             var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
 
             Assert.NotNull(outputEvents);
@@ -74,7 +74,7 @@ namespace PlusValuesFifoUnitTests
 
             var allInputEvents = new List<InputEvent>() { facebookBuyEvent2, facebookBuyEvent1, spotifyBuyEvent1, spotifySellEvent1, spotifyBuyEvent2, facebookSellEvent1 };
 
-            var plusValuesServices = new PlusValuesService(_logger);
+            var plusValuesServices = new EquitiesPlusValuesService(_logger);
             var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
 
 
@@ -114,7 +114,7 @@ namespace PlusValuesFifoUnitTests
 
 	        var allInputEvents = new List<InputEvent>() { buyingEvent1, sellingEvent1, buyingEvent2, buyingEvent3, sellingEvent2 };
 
-	        var plusValuesServices = new PlusValuesService(_logger);
+	        var plusValuesServices = new EquitiesPlusValuesService(_logger);
 	        var outputEvents = plusValuesServices.ComputePlusValues(allInputEvents);
 
 	        Assert.NotNull(outputEvents);

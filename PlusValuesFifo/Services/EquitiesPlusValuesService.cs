@@ -1,22 +1,48 @@
 ﻿using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace PlusValuesFifo.Services
 {
     /// <summary>
-    /// Service calculating the Capital Gains of a given list of buy and sell events
-    ///
-    /// At the moment, it's only been tested with Long Buy-Sell events.
-    /// It has not been tested with Short Sell-Buy strategies.
+    /// Service computing the Equities Capital Gains of a given list of buy and sell events
+    /// 
+    /// (c) 2019 - Yoann DUBERNET yoann [dot] dubernet [at] gmail [dot] com
+    /// 
+    /// By "Service", we mean the service the contained code of this file implements
+    /// 
+    /// SPECIFIC LICENCE APPLYING TO THIS SERVICE :
+    /// - THIS SERVICE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+    ///   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    ///   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    ///   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+    ///   OR IN CONNECTION WITH THE SERVICE OR THE USE OR OTHER DEALINGS IN THE SERVICE.
+    /// - You can suggest improvements by opening a pull-request on https://github.com/ydubernet/taxes-calculation,
+    ///   re-use this service for your own software(s) if and only if the software(s) using it is(are) free and open-sourced.
+    /// - By reusing this service, you agree to quote its original author and all its contributors in a COPYRIGHT file
+    ///   and to notify them of your usage.
+    ///  
+    /// Disclamers : 
+    /// - This service computes Capital Gain for EQUITIES ONLY
+    ///   It is based on notice2074 2018 French Taxes declaration.
+    /// - Do not forget that taxes forms change every year, this service may not be up date when you use it
+    /// - Do not forget that every situation is different and notice2074 applies to you
+    ///   if and only if you are qualified as a physical person, not as a professional person or company
+    /// - The author is not a taxes professional and this implementation is his sole understanding
+    ///   of the declaration notice and he has not received any aproval from any taxes professional
+    ///   regarding his implementation.
+    /// - Always do your own checks regarding the computed results
+    /// - The results returned by this service are NOT valid for crypto assets
+    ///   given the 2019 crypto taxes computation formula
+    /// - At the moment, this implementation has only been tested with Long Buy-Sell events.
+    ///   It has not been tested with Short Sell-Buy strategies.
     /// </summary>
-    public class PlusValuesService : IPlusValuesService
+    public class EquitiesPlusValuesService : IPlusValuesService
     {
-        private readonly ILogger<PlusValuesService> _logger;
+        private readonly ILogger<EquitiesPlusValuesService> _logger;
 
-        public PlusValuesService(ILogger<PlusValuesService> logger)
+        public EquitiesPlusValuesService(ILogger<EquitiesPlusValuesService> logger)
         {
             _logger = logger;
         }

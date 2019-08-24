@@ -37,7 +37,7 @@ namespace PlusValuesFifo
                                                 sp.GetService<ILogger<DataExporterService<OutputEvent>>>()));
 
             services.AddSingleton<IPlusValuesService>((sp) =>
-                new PlusValuesService(sp.GetService<ILogger<PlusValuesService>>()));
+                new EquitiesPlusValuesService(sp.GetService<ILogger<EquitiesPlusValuesService>>()));
 
             services.AddHealthChecks();
             services.AddMvc()
