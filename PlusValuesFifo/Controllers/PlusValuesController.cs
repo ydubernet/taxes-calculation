@@ -34,7 +34,7 @@ namespace PlusValuesFifo.Controllers
         }
 
         [HttpPost]
-        [Produces("text/csv")]
+        //[Produces("text/csv")]
         //https://www.c-sharpcorner.com/article/upload-download-files-in-asp-net-core-2-0/
         public async Task<IActionResult> Post(IFormCollection form)
         {

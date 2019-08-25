@@ -1,9 +1,10 @@
 ﻿// Clearly inspired from https://gist.github.com/AshikNesin/e44b1950f6a24cfcd85330ffc1713513
 
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { post } from 'axios';
 import { saveAs } from 'file-saver';
+import Error from './Error.js';
+import './Error.css';
 
 export class CapitalGain extends Component {
 
@@ -26,19 +27,7 @@ export class CapitalGain extends Component {
                 var blob = new Blob([response.data], { type: "text/csv;charset=utf-8" });
                 saveAs(blob, 'PlusValues.csv');
             }).catch(err => {
-                this.setState({ error: err.message });
-
-                var Error = React.createClass({
-                    render: function () {
-                        return <div id="errors">{this.props.name}</div>
-                    }
-                });
-                var errorDiv = document.createElement("div");
-                React.render(<Error name="coucou" />, errorDiv);
-                // grab the container
-                var container = document.getElementById("container");
-                // and replace the child
-                container.replaceChild(errorDiv.querySelector("#destination"), document.getElementById("destination"));
+                this.setState({ error: "Error : " + err.response.data });
                 console.log(err);
             });
     }
@@ -63,28 +52,30 @@ export class CapitalGain extends Component {
 
     render() {
         return (
-            <div>
+            <div id="capitalGain">
                 <h1>Welcome</h1>
 
                 <p>In order to compute your capital gains, please import a CSV file containing your buy & sell events:</p>
 
                 <form onSubmit={this.onFormSubmit}>
-                    <div>
-                        <div><label>Your file</label></div>
-                        <div><input type="file" onChange={this.onFileChange} /></div>
-                    </div>
-                    <div>
-                        <div><label>Asset type of your file</label></div>
-                        <div>
-                            <select value={this.state.assetType} onChange={this.onAssetTypeChange}>
-                                <option value="Equity">Equity</option>
-                                <option value="CryptoCurrency">CryptoCurrency</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit">Compute</button>
+                    <table>
+                        <thead>
+                            <th><label>Your file</label></th>
+                            <th><label>Asset type of your file</label></th>
+                        </thead>
+                        <tbody>
+                            <td><input type="file" onChange={this.onFileChange} /></td>
+                            <td>
+                                <select value={this.state.assetType} onChange={this.onAssetTypeChange}>
+                                    <option value="Equity">Equity</option>
+                                    <option value="CryptoCurrency">Crypto currency</option>
+                                </select>
+                            </td>
+                            <td><button type="submit">Compute</button></td>
+                        </tbody>
+                    </table>
                 </form>
-                <div id="errors"></div>
+                <Error errorMessage={this.state.error} />
             </div>
         );
     }
