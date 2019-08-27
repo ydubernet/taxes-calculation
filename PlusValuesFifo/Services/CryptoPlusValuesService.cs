@@ -27,8 +27,7 @@ namespace PlusValuesFifo.Services
             // --> On retire du prix d'acquisition les valeurs des portions d'assets qui ont fait l'objet du sursis d'imposition de 305€
             // *** On retire du prix d'acquisition l'ensemble des prix de cessions antérieurement réalisés (hors échanges ayant bénéficiés du sursis d'imposition de 305€)
             // Rappel : B. – Les personnes réalisant des cessions dont la somme des prix, tels que définis au A du III, n'excède pas 305 € au cours de l'année d'imposition hors opérations mentionnées au A du présent II, sont exonérées.
-            //             --> Cela veut dire qu'il faut retirer 305€ des prix de cession par an
-
+            // D'autre part, il y a un abattement de 305€ par an, mais cela ne rentre pas dans la formule de calcul des impots. C'est les impôts eux-mêmes qui prennent en compte cet abattement.
 
 
             // Nécessite de connaître :
@@ -38,6 +37,34 @@ namespace PlusValuesFifo.Services
             // 4. la somme des valeurs déjà cédées
 
             // Les frais sont déductibles du prix de cession
+
+
+
+            // Buy data
+            List<IEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
+            // Sell data
+            List<IEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
+
+            var outputs = new List<OutputEvent>();
+
+            foreach(var sellEvent in sellEvents)
+            {
+                // TODO : Take into account fees
+                // TODO : Optim that
+                var cessionPrice = sellEvent.Price * sellEvent.Amount;
+                var totalAcquisitionPrice = buyEvents.Where(e => e.Date <= sellEvent.Date) // TODO : + price of assets which got for free in the wallet (forks, etc...)
+                                                     .Sum(e => e.Amount * e.Price);
+                var totalCessionPriceBeforeCurrentSell = sellEvents.Where(e => e.Date < sellEvent.Date)
+                                                                   .Sum(e => e.Amount * e.Price);
+
+                decimal currentSellEventAcquisitionPrice = totalAcquisitionPrice - totalCessionPriceBeforeCurrentSell;
+
+                decimal totalPortfolioValue = 1m; // TODO : We need to have at any given time the total portfolio value.
+
+                decimal pv = cessionPrice - currentSellEventAcquisitionPrice * cessionPrice / totalPortfolioValue;
+
+
+            }
 
 
 

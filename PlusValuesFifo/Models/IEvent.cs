@@ -11,6 +11,8 @@ namespace PlusValuesFifo.Models
         DateTime Date { get; }
         decimal Fee { get; }
 
+        // string Currency { get; } // TODO : Add currency management in the future
+
         /// <summary>
         /// <see cref="InputEvent.AmountUsed"/>
         /// </summary>
