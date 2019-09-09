@@ -1,12 +1,10 @@
-﻿using System;
+﻿using PlusValuesFifo.Models;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data
 {
     public interface IDataExporterService<T>
     {
-        bool TryExportData(IEnumerable<T> events, out string content);
+        bool TryExportData(IEnumerable<T> events, AssetType assetType, out string content);
     }
 }

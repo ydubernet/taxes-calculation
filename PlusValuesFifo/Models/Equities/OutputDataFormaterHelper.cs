@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PlusValuesFifo.Services
+namespace PlusValuesFifo.Models.Equities
 {
     /// <summary>
     /// This helper intends to create an OutputEvent collection
@@ -13,12 +13,19 @@ namespace PlusValuesFifo.Services
     /// </summary>
     public static class OutputDataFormaterHelper
     {
-        public static IList<OutputEvent> ConcatAllEvents(IList<InputEvent> inputEvents, IList<OutputEvent> outputEvents)
-        {
-            var inputEventsAsOutputCollection = new List<OutputEvent>();
+        public static IList<IOutputEvent> ConcatAllEvents(IList<IInputEvent> inputEvents, IList<IOutputEvent> outputEvents, AssetType assetType)
+        {   
+            var inputEventsAsOutputCollection = new List<IOutputEvent>();
             foreach (var input in inputEvents)
             {
-                inputEventsAsOutputCollection.Add(new OutputEvent(0, 0, input));
+                if (assetType == AssetType.Equity)
+                {
+                    inputEventsAsOutputCollection.Add(new EquitiesOutputEvent(0, 0, input as IEquitiesInputEvent));
+                }
+
+                // :)
+                //else
+                //    inputEventsAsOutputCollection.Add(new CryptoOutputEvent(0,0,input as ICryptoInputEvent)):
             }
 
             return inputEventsAsOutputCollection.Union(outputEvents).OrderBy(e => e.Date).ToList();

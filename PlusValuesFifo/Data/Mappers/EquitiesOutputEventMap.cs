@@ -1,15 +1,12 @@
 ﻿using CsvHelper.Configuration;
 using PlusValuesFifo.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using PlusValuesFifo.Models.Equities;
 
 namespace PlusValuesFifo.Data.Mappers
 {
-    public class OutputEventMap : ClassMap<OutputEvent>
+    public class EquitiesOutputEventMap<T> : ClassMap<T> where T : IEquitiesOutputEvent
     {
-        public OutputEventMap()
+        public EquitiesOutputEventMap()
         {
             Map(m => m.AssetName).Index(0);
             Map(m => m.Date).Index(1);
@@ -19,7 +16,6 @@ namespace PlusValuesFifo.Data.Mappers
             Map(m => m.Fee).Index(5);
             Map(m => m.Pmp).Index(6);
             Map(m => m.PlusValue).Index(7);
-            Map(m => m.AmountUsed).Ignore();
         }
     }
 }

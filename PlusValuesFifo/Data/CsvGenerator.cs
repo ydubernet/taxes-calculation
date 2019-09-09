@@ -1,33 +1,37 @@
 ﻿using CsvHelper;
-using PlusValuesFifo.Data.Mappers;
+using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Models;
-using System;
+using PlusValuesFifo.ServiceProviders;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PlusValuesFifo.Data
 {
-    //// It could be cool to have T where T : ClassMap to have different csv mappers.
-    //// and yet to keep the OutputEvent class as a normal input of GenerateOutputFile
-    //// since it doesn't need to have different kinds of IEvent
-    public class CsvGenerator<T> : IFileGenerator<T> where T : OutputEvent
+    public class CsvGenerator<T> : IFileGenerator<T>
     {
-        // TOOD : Add a logger
+        private readonly ILogger _logger;
+        private readonly IMapProvider<T> _mapProvider;
 
-        public string GenerateOutputFile(IEnumerable<T> events)
+        public CsvGenerator(ILoggerProvider loggerProvider, IMapProvider<T> mapProvider)
         {
+            _mapProvider = mapProvider;
+            _logger = loggerProvider.CreateLogger("CsvGenerator");
+        }
+
+        public string GenerateOutputFile(IEnumerable<T> events, AssetType assetType)
+        {
+            var mapper = _mapProvider.GetMap(assetType, EventType.Output);
+            _logger.LogInformation($"Starting content generation with {mapper.GetType().Name} kind.");
+
             StringBuilder csvResultBuilder = new StringBuilder();
-            using(var stringWriter = new StringWriter(csvResultBuilder))
+            using (var stringWriter = new StringWriter(csvResultBuilder))
             using (var csvWriter = new CsvWriter(stringWriter))
             {
                 csvWriter.Configuration.HasHeaderRecord = true;
                 csvWriter.Configuration.Delimiter = ";";
 
-                var classMapper = new OutputEventMap();
-                csvWriter.Configuration.RegisterClassMap(classMapper);
+                csvWriter.Configuration.RegisterClassMap(mapper);
 
                 csvWriter.WriteRecords(events);
             }

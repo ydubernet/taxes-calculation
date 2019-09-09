@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
 using PlusValuesFifo.ServiceProviders;
-using PlusValuesFifo.Services;
 
 namespace PlusValuesFifo
 {
@@ -25,17 +24,17 @@ namespace PlusValuesFifo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+            services.AddSingleton<IMapProvider<IEvent>>();
+            services.AddSingleton<IParser<IInputEvent>>(sp => new CsvParser<IInputEvent>(sp.GetService<ILoggerProvider>(), sp.GetService<IMapProvider<IInputEvent>>()));
+            services.AddSingleton<IFileGenerator<IOutputEvent>>(sp => new CsvGenerator<IOutputEvent>(sp.GetService<ILoggerProvider>(), sp.GetService<IMapProvider<IOutputEvent>>()));
 
-            services.AddSingleton<IParser<InputEvent>>(sp => new CsvParser<InputEvent>(sp.GetService<ILoggerFactory>()));
-            services.AddSingleton<IFileGenerator<OutputEvent>>(new CsvGenerator<OutputEvent>());
+            services.AddSingleton<IDataLoaderService<IInputEvent>>((sp) =>
+                new DataLoaderService<IInputEvent>(sp.GetService<IParser<IInputEvent>>(),
+                                                   sp.GetService<ILoggerFactory>()));
 
-            services.AddSingleton<IDataLoaderService<InputEvent>>((sp) =>
-                new DataLoaderService<InputEvent>(sp.GetService<IParser<InputEvent>>(),
-                                                  sp.GetService<ILoggerFactory>()));
-
-            services.AddSingleton<IDataExporterService<OutputEvent>>((sp) =>
-                new DataExporterService<OutputEvent>(sp.GetService<IFileGenerator<OutputEvent>>(),
-                                                     sp.GetService<ILoggerFactory>()));
+            services.AddSingleton<IDataExporterService<IOutputEvent>>((sp) =>
+                new DataExporterService<IOutputEvent>(sp.GetService<IFileGenerator<IOutputEvent>>(),
+                                                      sp.GetService<ILoggerFactory>()));
 
             services.AddSingleton<IPlusValuesServiceProvider, PlusValuesServiceProvider>();
 

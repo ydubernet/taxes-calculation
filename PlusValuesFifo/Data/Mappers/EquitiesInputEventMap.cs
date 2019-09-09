@@ -1,15 +1,12 @@
 ﻿using CsvHelper.Configuration;
 using PlusValuesFifo.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using PlusValuesFifo.Models.Equities;
 
 namespace PlusValuesFifo.Data.Mappers
 {
-    public class InputEventMap<T> : ClassMap<T> where T : IEvent
+    public class EquitiesInputEventMap<T> : ClassMap<T> where T : IEquitiesInputEvent
     {
-        public InputEventMap()
+        public EquitiesInputEventMap()
         {
             AutoMap();
             Map(m => m.AssetName).Name("Name");

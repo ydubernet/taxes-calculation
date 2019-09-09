@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace PlusValuesFifo.Models
+namespace PlusValuesFifo.Models.Equities
 {
-    public class OutputEvent : IEvent
+    public class EquitiesOutputEvent : IEquitiesOutputEvent
     {
-        public OutputEvent(decimal pmp, decimal pv, IEvent inputEvent)
+        public EquitiesOutputEvent(decimal pmp, decimal pv, IEquitiesInputEvent inputEvent)
         {
             Pmp = pmp;
             PlusValue = pv;

@@ -5,7 +5,7 @@ namespace PlusValuesFifo.Data
 {
     public interface IDataLoaderService<T>
     {
-        bool TryLoadData(string content);
+        bool TryLoadData(string content, AssetType assetType);
         IEnumerable<T> GetEvents();
     }
 }

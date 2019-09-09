@@ -1,14 +1,14 @@
 ﻿using CsvHelper;
 using Microsoft.Extensions.Logging;
-using PlusValuesFifo.Data.Mappers;
 using PlusValuesFifo.Models;
+using PlusValuesFifo.ServiceProviders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace PlusValuesFifo.Data
 {
-    public class DataLoaderService<T> : IDataLoaderService<T> where T : IEvent
+    public class DataLoaderService<T> : IDataLoaderService<T> where T : IInputEvent
     {
         private readonly IParser<T> _parser;
         private readonly ILogger<DataLoaderService<T>> _logger;
@@ -21,11 +21,11 @@ namespace PlusValuesFifo.Data
         }
 
 
-        public bool TryLoadData(string content)
+        public bool TryLoadData(string content, AssetType assetType)
         {
             try
             {
-                _events = _parser.Parse(content, new InputEventMap<T>()).ToList();
+                _events = _parser.Parse(content, assetType).ToList();
             }
             catch (CsvHelperException ex)
             {

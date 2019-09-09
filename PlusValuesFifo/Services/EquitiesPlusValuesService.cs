@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Models;
+using PlusValuesFifo.Models.Equities;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -49,9 +50,9 @@ namespace PlusValuesFifo.Services
 
         // TODO : For first version, since we don't support short selling, add a sanity check so we wouldn't be selling more than what we own
 
-        public IList<OutputEvent> ComputePlusValues(IEnumerable<IEvent> events)
+        public IEnumerable<IOutputEvent> ComputePlusValues(IEnumerable<IInputEvent> events)
         {
-            var outputs = new List<OutputEvent>();
+            var outputs = new List<IOutputEvent>();
 
             foreach (var assetEvents in events.GroupBy(e => e.AssetName))
             {
@@ -65,14 +66,14 @@ namespace PlusValuesFifo.Services
             return outputs;
         }
 
-        private IList<OutputEvent> ComputePlusValuesForEachAsset(IEnumerable<IEvent> events)
+        private IList<IOutputEvent> ComputePlusValuesForEachAsset(IEnumerable<IInputEvent> events)
         {
             // Buy data
-            List<IEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
+            List<EquitiesInputEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).Cast<EquitiesInputEvent>().ToList();
             // Sell data
-            List<IEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
+            List<EquitiesInputEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).Cast<EquitiesInputEvent>().ToList();
 
-            var outputs = new List<OutputEvent>();
+            var outputs = new List<IOutputEvent>();
 
             foreach (var sellEvent in sellEvents)
             {
@@ -87,7 +88,7 @@ namespace PlusValuesFifo.Services
                 decimal pv = (sellEvent.Price - pmp) * (sellEvent.Amount - sellEvent.AmountUsed);
 
                 // store these infos for output
-                outputs.Add(new OutputEvent(pmp, pv, sellEvent));
+                outputs.Add(new EquitiesOutputEvent(pmp, pv, sellEvent));
 
                 _logger.LogDebug($"Pmp : {pmp}, Pv : {pv}");
 

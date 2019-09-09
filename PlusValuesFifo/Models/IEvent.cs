@@ -12,10 +12,13 @@ namespace PlusValuesFifo.Models
         decimal Fee { get; }
 
         // string Currency { get; } // TODO : Add currency management in the future
+    }
 
-        /// <summary>
-        /// <see cref="InputEvent.AmountUsed"/>
-        /// </summary>
-        decimal AmountUsed { get; set; }
+    public interface IInputEvent : IEvent
+    { }
+
+    public interface IOutputEvent : IEvent
+    {
+        decimal PlusValue { get; }
     }
 }

@@ -1,23 +1,30 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using PlusValuesFifo.Models;
+using PlusValuesFifo.Models.Cryptos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using PlusValuesFifo.Models;
 
 namespace PlusValuesFifo.Services
 {
     public class CryptoPlusValuesService : IPlusValuesService
     {
         private readonly ILogger<CryptoPlusValuesService> _logger;
+        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly IDictionary<(long timestamp, string assetName), CryptoPriceModel> _cryptoAssetsPricesCache;
+
 
         public CryptoPlusValuesService(ILoggerFactory loggerFactory)
         {
             _logger = loggerFactory.CreateLogger<CryptoPlusValuesService>();
+            _cryptoAssetsPricesCache = new Dictionary<(long, string), CryptoPriceModel>();
         }
 
         // https://www.legifrance.gouv.fr/affichCodeArticle.do?cidTexte=LEGITEXT000006069577&idArticle=LEGIARTI000037943236&dateTexte=&categorieLien=cid
-        public IList<OutputEvent> ComputePlusValues(IEnumerable<IEvent> events)
+        public IEnumerable<IOutputEvent> ComputePlusValues(IEnumerable<IInputEvent> events)
         {
             // prix de cession = montant en legal currency cédé
             // PV = prix de cession - prix d'acquisition du porfeteuille d'actifs numériques * prix de cession / valeur du portefeuille juste avant la cession
@@ -41,14 +48,17 @@ namespace PlusValuesFifo.Services
 
 
             // Buy data
-            List<IEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
+            List<IInputEvent> buyEvents = events.Where(e => e.ActionEvent == BuySell.Buy).OrderBy(e => e.Date).ToList();
             // Sell data
-            List<IEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
+            List<IInputEvent> sellEvents = events.Where(e => e.ActionEvent == BuySell.Sell).OrderBy(e => e.Date).ToList();
 
-            var outputs = new List<OutputEvent>();
+            var outputs = new List<IOutputEvent>();
 
-            foreach(var sellEvent in sellEvents)
+            foreach (var sellEvent in sellEvents)
             {
+
+
+
                 // TODO : Take into account fees
                 // TODO : Optim that
                 var cessionPrice = sellEvent.Price * sellEvent.Amount;
@@ -63,13 +73,34 @@ namespace PlusValuesFifo.Services
 
                 decimal pv = cessionPrice - currentSellEventAcquisitionPrice * cessionPrice / totalPortfolioValue;
 
-
+                outputs.Add(new CryptoOutputEvent(/*0m, pv, sellEvent*/));
             }
 
+            return outputs;
+        }
 
+        public async Task<CryptoPriceModel> GetCryptoPrice(string cryptoAssetName, DateTime dateTime)
+        {
+            var timestamp = dateTime.Ticks;
+            var response = await _httpClient.GetAsync($"https://localhost:5000/api/binance/price?symbol={cryptoAssetName}&timestamp={timestamp}");
 
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Issue while contacting the Crypto Data service.");
+                return null;
+            }
 
-            throw new NotImplementedException();
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var cryptoPrice = JsonConvert.DeserializeObject<CryptoPriceModel>(responseContent);
+
+            if (cryptoPrice == null)
+            {
+                _logger.LogError("Issue while deserializing Json Response from the Crypto Data service.");
+                return null;
+            }
+
+            _cryptoAssetsPricesCache.Add((timestamp, cryptoAssetName), cryptoPrice);
+            return cryptoPrice;
         }
     }
 }

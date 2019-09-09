@@ -1,25 +1,28 @@
 ﻿using CsvHelper;
-using CsvHelper.Configuration;
 using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Models;
+using PlusValuesFifo.ServiceProviders;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace PlusValuesFifo.Data
 {
-    public class CsvParser<T> : IParser<T> where T : InputEvent
+    public class CsvParser<T> : IParser<T>
     {
-        private readonly ILogger<CsvParser<T>> _logger;
+        private readonly ILogger _logger;
+        private readonly IMapProvider<T> _mapProvider;
 
-        public CsvParser(ILoggerFactory loggerFactory)
+        public CsvParser(ILoggerProvider loggerProvider, IMapProvider<T> mapProvider)
         {
-            _logger = loggerFactory.CreateLogger<CsvParser<T>>();
+            _logger = loggerProvider.CreateLogger("CsvParser");
+            _mapProvider = mapProvider;
         }
 
 
-        public IReadOnlyCollection<T> Parse(string content, ClassMap<T> classMapper)
+        public IReadOnlyCollection<T> Parse(string content, AssetType assetType)
         {
+            var classMapper = _mapProvider.GetMap(assetType, EventType.Input);
             _logger.LogInformation($"Starting content parsing with {classMapper.GetType().Name} kind.");
 
             using (var stringReader = new StringReader(content))

@@ -6,6 +6,7 @@ using Xunit;
 using Moq;
 using System.Collections.Generic;
 using System.Linq;
+using PlusValuesFifo.Models.Equities;
 
 namespace PlusValuesFifoUnitTests
 {
@@ -21,14 +22,14 @@ namespace PlusValuesFifoUnitTests
         [Fact]
         public void Test_That_Default_Notice_2074_Exemple_Computes_Correctly()
         {
-            var buyingEvent1 = new InputEvent("X", BuySell.Buy, 100, 95, DateTime.UtcNow.AddYears(-5), 0);
-            var buyingEvent2 = new InputEvent("X", BuySell.Buy, 200, 110, DateTime.UtcNow.AddYears(-3), 0);
-            var sellingEvent = new InputEvent("X", BuySell.Sell, 150, 120, DateTime.UtcNow, 0);
+            var buyingEvent1 = new EquitiesInputEvent("X", BuySell.Buy, 100, 95, DateTime.UtcNow.AddYears(-5), 0);
+            var buyingEvent2 = new EquitiesInputEvent("X", BuySell.Buy, 200, 110, DateTime.UtcNow.AddYears(-3), 0);
+            var sellingEvent = new EquitiesInputEvent("X", BuySell.Sell, 150, 120, DateTime.UtcNow, 0);
 
-            var allInputEvents = new List<InputEvent>() { buyingEvent1, buyingEvent2, sellingEvent };
+            var allInputEvents = new List<EquitiesInputEvent>() { buyingEvent1, buyingEvent2, sellingEvent };
 
             var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
-            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
+            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents).Cast<IEquitiesOutputEvent>();
 
             Assert.NotNull(outputEvents);
             Assert.NotEmpty(outputEvents);
@@ -44,13 +45,13 @@ namespace PlusValuesFifoUnitTests
         [Fact]
         public void Test_Simple_Case()
         {
-            var buyEvent = new InputEvent("X", BuySell.Buy, 1, 42.12m, DateTime.Now.AddHours(-1), 0);
-            var sellEvent = new InputEvent("X", BuySell.Sell, 1, 43.85m, DateTime.Now.AddMinutes(-1), 0);
+            var buyEvent = new EquitiesInputEvent("X", BuySell.Buy, 1, 42.12m, DateTime.Now.AddHours(-1), 0);
+            var sellEvent = new EquitiesInputEvent("X", BuySell.Sell, 1, 43.85m, DateTime.Now.AddMinutes(-1), 0);
 
-            var allInputEvents = new List<InputEvent>() { buyEvent, sellEvent };
+            var allInputEvents = new List<EquitiesInputEvent>() { buyEvent, sellEvent };
 
             var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
-            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
+            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents).Cast<IEquitiesOutputEvent>();
 
             Assert.NotNull(outputEvents);
             Assert.NotEmpty(outputEvents);
@@ -65,17 +66,18 @@ namespace PlusValuesFifoUnitTests
         [Fact]
         public void Test_PlusValue_Service_Behaves_Correctly_With_Many_Assets_In_Input()
         {
-            var facebookBuyEvent2 = new InputEvent("FB UW", BuySell.Buy, 2, 153.14m, new DateTime(2017, 7, 25), 0.51m);
-            var facebookBuyEvent1 = new InputEvent("FB UW", BuySell.Buy, 2, 132.39m, new DateTime(2017, 4, 15), 0.51m);
-            var spotifyBuyEvent1 = new InputEvent("SPOT", BuySell.Buy, 3, 118m + 2/3m, new DateTime(2017, 4, 14), 0.51m);
-            var spotifySellEvent1 = new InputEvent("SPOT", BuySell.Sell, 3, 100.14666666667m, new DateTime(2017, 12, 1), 0.51m);
-            var spotifyBuyEvent2 = new InputEvent("SPOT", BuySell.Buy, 2, 97.89m, new DateTime(2017, 12, 5), 0.51m);
-            var facebookSellEvent1 = new InputEvent("FB UW", BuySell.Sell, 2, 110.765m, new DateTime(2017, 12, 5), 0.51m);
+            var facebookBuyEvent2 = new EquitiesInputEvent("FB UW", BuySell.Buy, 2, 153.14m, new DateTime(2017, 7, 25), 0.51m);
+            var facebookBuyEvent1 = new EquitiesInputEvent("FB UW", BuySell.Buy, 2, 132.39m, new DateTime(2017, 4, 15), 0.51m);
+            var spotifyBuyEvent1 = new EquitiesInputEvent("SPOT", BuySell.Buy, 3, 118m + 2/3m, new DateTime(2017, 4, 14), 0.51m);
+            var spotifySellEvent1 = new EquitiesInputEvent("SPOT", BuySell.Sell, 3, 100.14666666667m, new DateTime(2017, 12, 1), 0.51m);
+            var spotifyBuyEvent2 = new EquitiesInputEvent("SPOT", BuySell.Buy, 2, 97.89m, new DateTime(2017, 12, 5), 0.51m);
+            var facebookSellEvent1 = new EquitiesInputEvent("FB UW", BuySell.Sell, 2, 110.765m, new DateTime(2017, 12, 5), 0.51m);
 
-            var allInputEvents = new List<InputEvent>() { facebookBuyEvent2, facebookBuyEvent1, spotifyBuyEvent1, spotifySellEvent1, spotifyBuyEvent2, facebookSellEvent1 };
+            var allInputEvents = new List<EquitiesInputEvent>() { facebookBuyEvent2, facebookBuyEvent1, spotifyBuyEvent1, spotifySellEvent1, spotifyBuyEvent2, facebookSellEvent1 };
 
             var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
-            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
+            var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents)
+                                                         .Cast<IEquitiesOutputEvent>().ToList();
 
 
             Assert.NotNull(outputEvents);
@@ -106,16 +108,17 @@ namespace PlusValuesFifoUnitTests
         [Fact]
         public void Test_EquitiesPlusValuesService_With_Multiple_Buy_Sell_Without_Selling_Everything_At_Once()
         {
-            var buyingEvent1 = new InputEvent("BTC", BuySell.Buy, 0.2m, 1000m, DateTime.Now.AddYears(-1), 25m);
-	        var sellingEvent1 = new InputEvent("BTC", BuySell.Sell, 0.1m, 1500m, DateTime.Now.AddMonths(-11), 25m);
-	        var buyingEvent2 = new InputEvent("BTC", BuySell.Buy, 0.3m, 1600m, DateTime.Now.AddMonths(-6), 25m);
-	        var buyingEvent3 = new InputEvent("BTC", BuySell.Buy, 0.1m, 1550m, DateTime.Now.AddMonths(-5), 25m);
-	        var sellingEvent2 = new InputEvent("BTC", BuySell.Sell, 0.4m, 1900m, DateTime.Now.AddMonths(-4), 25m);
+            var buyingEvent1 = new EquitiesInputEvent("BTC", BuySell.Buy, 0.2m, 1000m, DateTime.Now.AddYears(-1), 25m);
+	        var sellingEvent1 = new EquitiesInputEvent("BTC", BuySell.Sell, 0.1m, 1500m, DateTime.Now.AddMonths(-11), 25m);
+	        var buyingEvent2 = new EquitiesInputEvent("BTC", BuySell.Buy, 0.3m, 1600m, DateTime.Now.AddMonths(-6), 25m);
+	        var buyingEvent3 = new EquitiesInputEvent("BTC", BuySell.Buy, 0.1m, 1550m, DateTime.Now.AddMonths(-5), 25m);
+	        var sellingEvent2 = new EquitiesInputEvent("BTC", BuySell.Sell, 0.4m, 1900m, DateTime.Now.AddMonths(-4), 25m);
 
-	        var allInputEvents = new List<InputEvent>() { buyingEvent1, sellingEvent1, buyingEvent2, buyingEvent3, sellingEvent2 };
+	        var allInputEvents = new List<EquitiesInputEvent>() { buyingEvent1, sellingEvent1, buyingEvent2, buyingEvent3, sellingEvent2 };
 
 	        var EquitiesPlusValuesServices = new EquitiesPlusValuesService(_loggerFactory);
-	        var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents);
+	        var outputEvents = EquitiesPlusValuesServices.ComputePlusValues(allInputEvents)
+                                                         .Cast<IEquitiesOutputEvent>().ToList();
 
 	        Assert.NotNull(outputEvents);
 

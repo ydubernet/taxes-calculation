@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PlusValuesFifo.Data;
 using PlusValuesFifo.Models;
+using PlusValuesFifo.Models.Equities;
 using PlusValuesFifo.ServiceProviders;
 using PlusValuesFifo.Services;
 using System;
@@ -18,13 +19,13 @@ namespace PlusValuesFifo.Controllers
     public class PlusValuesController : Controller
     {
         private readonly IPlusValuesServiceProvider _plusValuesServiceProvider;
-        private readonly IDataLoaderService<InputEvent> _dataLoaderService;
-        private readonly IDataExporterService<OutputEvent> _dataExporterService;
+        private readonly IDataLoaderService<IInputEvent> _dataLoaderService;
+        private readonly IDataExporterService<IOutputEvent> _dataExporterService;
         private readonly ILogger<PlusValuesController> _logger;
 
         public PlusValuesController(IPlusValuesServiceProvider plusValuesServiceProvider,
-            IDataLoaderService<InputEvent> dataLoaderService,
-            IDataExporterService<OutputEvent> dataExporterService,
+            IDataLoaderService<IInputEvent> dataLoaderService,
+            IDataExporterService<IOutputEvent> dataExporterService,
             ILogger<PlusValuesController> logger)
         {
             _plusValuesServiceProvider = plusValuesServiceProvider;
@@ -39,6 +40,7 @@ namespace PlusValuesFifo.Controllers
         public async Task<IActionResult> Post(IFormCollection form)
         {
             var assetTypeString = form["assetType"];
+            Enum.TryParse<AssetType>(assetTypeString, out var assetType);
             var file = form.Files["file"];
 
             if (file == null || file.Length == 0)
@@ -60,14 +62,13 @@ namespace PlusValuesFifo.Controllers
             }
 
             // Read file and parse it.
-            if (_dataLoaderService.TryLoadData(fileContent))
+            if (_dataLoaderService.TryLoadData(fileContent, assetType))
             {
                 // If it works, then compute plusvalues with imported content
                 var events = _dataLoaderService.GetEvents();
 
-                Enum.TryParse<AssetType>(assetTypeString, out var assetType);
                 var plusValueService = _plusValuesServiceProvider.GetPlusValuesService(assetType);
-                var outputs = plusValueService.ComputePlusValues(events);
+                var outputs = plusValueService.ComputePlusValues(events).ToList();
 
                 string outputContent = string.Empty;
 
@@ -75,9 +76,9 @@ namespace PlusValuesFifo.Controllers
                 // TODO : That logic shouldn't be in a Controller
                 var outputsToExport = OutputDataFormaterHelper.ConcatAllEvents(
                                                                 events.Where(e => e.ActionEvent == BuySell.Buy).ToList(),
-                                                                outputs);
+                                                                outputs, assetType);
 
-                if (_dataExporterService.TryExportData(outputsToExport, out outputContent))
+                if (_dataExporterService.TryExportData(outputsToExport, assetType, out outputContent))
                 {
                     var bytes = Encoding.UTF8.GetBytes(outputContent);
                     return File(bytes, "text/csv", "PlusValues.csv");

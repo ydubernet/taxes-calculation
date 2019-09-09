@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PlusValuesFifo.Models
+namespace PlusValuesFifo.Models.Equities
 {
-    public class InputEvent : IEvent
+    public class EquitiesInputEvent : IEquitiesInputEvent, IInputEvent
     {
         /// <summary>
         /// Empty ctor for being able decode a csv input file containing a list of input events
         /// </summary>
-        public InputEvent() { }
+        public EquitiesInputEvent() { }
 
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace PlusValuesFifo.Models
         /// <param name="price"></param>
         /// <param name="date"></param>
         /// <param name="fee"></param>
-        public InputEvent(string assetName,
+        public EquitiesInputEvent(string assetName,
                           BuySell actionEvent,
                           decimal amount,
                           decimal price,
